@@ -73,6 +73,34 @@ class AplicacionClinica:
         )
         btn_reporte.pack(side=tk.RIGHT, padx=10, pady=10)
         
+        btn_backups = tk.Button(
+            frame_superior,
+            text="💾 Backups",
+            command=self.mostrar_ventana_backups,
+            bg="#e74c3c",
+            fg="white",
+            font=("Arial", 10, "bold"),
+            padx=15,
+            pady=5,
+            relief=tk.FLAT,
+            cursor="hand2"
+        )
+        btn_backups.pack(side=tk.RIGHT, padx=10, pady=10)
+        
+        btn_exportar = tk.Button(
+            frame_superior,
+            text="📥 Exportar",
+            command=self.mostrar_ventana_exportar,
+            bg="#9b59b6",
+            fg="white",
+            font=("Arial", 10, "bold"),
+            padx=15,
+            pady=5,
+            relief=tk.FLAT,
+            cursor="hand2"
+        )
+        btn_exportar.pack(side=tk.RIGHT, padx=10, pady=10)
+        
         # ===== CONTENEDOR PRINCIPAL =====
         contenedor_principal = tk.Frame(self.root)
         contenedor_principal.pack(fill=tk.BOTH, expand=True)
@@ -2599,12 +2627,393 @@ class AplicacionClinica:
             padx=20,
             pady=5
         ).pack(side=tk.LEFT, padx=5)
+    
+    def mostrar_ventana_exportar(self):
+        """Muestra la ventana para exportar datos a CSV"""
+        from tkinter import filedialog
+        import os
+        from pathlib import Path
+        
+        ventana_exportar = tk.Toplevel(self.root)
+        ventana_exportar.title("Exportar Datos")
+        ventana_exportar.geometry("700x600")
+        
+        # Título
+        tk.Label(
+            ventana_exportar,
+            text="Exportar Datos a CSV",
+            font=("Arial", 14, "bold"),
+            fg="#2c3e50"
+        ).pack(pady=15)
+        
+        # Frame de opciones
+        frame_opciones = tk.Frame(ventana_exportar, bg="#ecf0f1", relief=tk.SOLID, borderwidth=1)
+        frame_opciones.pack(fill=tk.BOTH, padx=20, pady=10)
+        
+        tk.Label(
+            frame_opciones,
+            text="Selecciona qué deseas exportar:",
+            font=("Arial", 11, "bold"),
+            bg="#ecf0f1",
+            fg="#2c3e50"
+        ).pack(anchor="w", padx=15, pady=(10, 5))
+        
+        # Variables para checkboxes
+        var_pacientes = tk.BooleanVar(value=True)
+        var_sesiones = tk.BooleanVar(value=True)
+        var_pagos = tk.BooleanVar(value=True)
+        var_informes = tk.BooleanVar(value=True)
+        var_resumen = tk.BooleanVar(value=True)
+        
+        # Checkboxes
+        opciones = [
+            (var_pacientes, "👥 Pacientes (con deuda y arancel social)"),
+            (var_sesiones, "🕐 Sesiones (todas las sesiones registradas)"),
+            (var_pagos, "💰 Pagos (historial de pagos)"),
+            (var_informes, "📋 Informes (todos los informes)"),
+            (var_resumen, "📊 Resumen (estadísticas y métricas)"),
+        ]
+        
+        for var, texto in opciones:
+            tk.Checkbutton(
+                frame_opciones,
+                text=texto,
+                variable=var,
+                font=("Arial", 10),
+                bg="#ecf0f1",
+                fg="#2c3e50",
+                activebackground="#ecf0f1"
+            ).pack(anchor="w", padx=30, pady=5)
+        
+        # Frame de botones
+        frame_botones = tk.Frame(ventana_exportar)
+        frame_botones.pack(fill=tk.X, padx=20, pady=20)
+        
+        def exportar():
+            """Realiza la exportación"""
+            # Seleccionar directorio
+            directorio = filedialog.askdirectory(
+                title="Seleccionar carpeta para guardar archivos CSV"
+            )
+            
+            if not directorio:
+                return
+            
+            try:
+                # Crear lista de opciones seleccionadas
+                opciones_export = []
+                if var_pacientes.get():
+                    opciones_export.append('pacientes')
+                if var_sesiones.get():
+                    opciones_export.append('sesiones')
+                if var_pagos.get():
+                    opciones_export.append('pagos')
+                if var_informes.get():
+                    opciones_export.append('informes')
+                if var_resumen.get():
+                    opciones_export.append('resumen')
+                
+                if not opciones_export:
+                    messagebox.showwarning("Advertencia", "Debes seleccionar al menos una opción")
+                    return
+                
+                # Crear carpeta para la exportación
+                from datetime import datetime as dt
+                timestamp = dt.now().strftime("%Y-%m-%d_%H-%M-%S")
+                carpeta_export = Path(directorio) / f"exportacion_{timestamp}"
+                carpeta_export.mkdir(parents=True, exist_ok=True)
+                
+                # Exportar archivos seleccionados
+                archivos_creados = []
+                
+                if 'pacientes' in opciones_export:
+                    db.exportar_pacientes_csv(str(carpeta_export / 'pacientes.csv'))
+                    archivos_creados.append('pacientes.csv')
+                
+                if 'sesiones' in opciones_export:
+                    db.exportar_sesiones_csv(str(carpeta_export / 'sesiones.csv'))
+                    archivos_creados.append('sesiones.csv')
+                
+                if 'pagos' in opciones_export:
+                    db.exportar_pagos_csv(str(carpeta_export / 'pagos.csv'))
+                    archivos_creados.append('pagos.csv')
+                
+                if 'informes' in opciones_export:
+                    db.exportar_informes_csv(str(carpeta_export / 'informes.csv'))
+                    archivos_creados.append('informes.csv')
+                
+                if 'resumen' in opciones_export:
+                    db.exportar_resumen_csv(str(carpeta_export / 'resumen.csv'))
+                    archivos_creados.append('resumen.csv')
+                
+                # Mostrar mensaje de éxito
+                mensaje = f"✅ Exportación completada\n\n"
+                mensaje += f"Archivos creados ({len(archivos_creados)}):\n"
+                for archivo in archivos_creados:
+                    mensaje += f"  • {archivo}\n"
+                mensaje += f"\nCarpeta: {carpeta_export.name}\n\n"
+                mensaje += "Puedes abrir estos archivos en:\n"
+                mensaje += "✓ Excel\n✓ Google Sheets\n✓ Cualquier editor de texto"
+                
+                if messagebox.showinfo("Éxito", mensaje):
+                    pass
+                
+                # Preguntar si abrir la carpeta
+                if messagebox.askyesno("Abrir carpeta", "¿Deseas abrir la carpeta con los archivos?"):
+                    import subprocess
+                    import platform
+                    
+                    if platform.system() == 'Windows':
+                        os.startfile(str(carpeta_export))
+                    elif platform.system() == 'Darwin':  # macOS
+                        subprocess.Popen(['open', str(carpeta_export)])
+                    else:  # Linux
+                        subprocess.Popen(['xdg-open', str(carpeta_export)])
+                
+                ventana_exportar.destroy()
+                
+            except Exception as e:
+                messagebox.showerror("Error", f"Error durante la exportación:\n{e}")
+        
+        tk.Button(
+            frame_botones,
+            text="✓ Exportar",
+            command=exportar,
+            bg="#27ae60",
+            fg="white",
+            font=("Arial", 11, "bold"),
+            padx=30,
+            pady=8,
+            relief=tk.FLAT,
+            cursor="hand2"
+        ).pack(side=tk.LEFT, padx=10)
+        
+        tk.Button(
+            frame_botones,
+            text="✗ Cancelar",
+            command=ventana_exportar.destroy,
+            bg="#95a5a6",
+            fg="white",
+            font=("Arial", 11, "bold"),
+            padx=30,
+            pady=8,
+            relief=tk.FLAT,
+            cursor="hand2"
+        ).pack(side=tk.LEFT, padx=10)
+        
+        # Información adicional
+        frame_info = tk.Frame(ventana_exportar, bg="#e8f8f5", relief=tk.SOLID, borderwidth=1)
+        frame_info.pack(fill=tk.BOTH, padx=20, pady=10)
+        
+        tk.Label(
+            frame_info,
+            text="ℹ️ Información",
+            font=("Arial", 10, "bold"),
+            bg="#e8f8f5",
+            fg="#27ae60"
+        ).pack(anchor="w", padx=15, pady=(8, 0))
+        
+        info_text = """• Los archivos se guardan en formato CSV (comma-separated values)
+• Compatibles con Excel, Google Sheets y cualquier hoja de cálculo
+• Puedes importarlos a Google Drive para verlos en el celular
+• La fecha/hora se incluye automáticamente en el nombre de la carpeta
+• Los valores en USD están formateados con separador de miles"""
+        
+        tk.Label(
+            frame_info,
+            text=info_text,
+            font=("Arial", 9),
+            bg="#e8f8f5",
+            fg="#2c3e50",
+            justify=tk.LEFT
+        ).pack(anchor="w", padx=15, pady=(5, 10))
+    
+    def mostrar_ventana_backups(self):
+        """Muestra la ventana para gestionar backups"""
+        ventana_backups = tk.Toplevel(self.root)
+        ventana_backups.title("Gestionar Backups")
+        ventana_backups.geometry("800x600")
+        
+        # Título
+        tk.Label(
+            ventana_backups,
+            text="Gestión de Backups de la Base de Datos",
+            font=("Arial", 14, "bold"),
+            fg="#2c3e50"
+        ).pack(pady=15)
+        
+        # Frame superior con botones de acción
+        frame_botones_top = tk.Frame(ventana_backups, bg="#ecf0f1")
+        frame_botones_top.pack(fill=tk.X, padx=20, pady=10)
+        
+        def crear_backup_manual():
+            """Crea un backup manual"""
+            try:
+                ruta = db.crear_backup()
+                messagebox.showinfo("Éxito", f"Backup creado:\n{ruta}")
+                actualizar_lista_backups()
+            except Exception as e:
+                messagebox.showerror("Error", f"Error al crear backup:\n{e}")
+        
+        tk.Button(
+            frame_botones_top,
+            text="💾 Crear Backup Ahora",
+            command=crear_backup_manual,
+            bg="#27ae60",
+            fg="white",
+            font=("Arial", 10, "bold"),
+            padx=20,
+            pady=8,
+            relief=tk.FLAT,
+            cursor="hand2"
+        ).pack(side=tk.LEFT, padx=5)
+        
+        tk.Label(
+            frame_botones_top,
+            text="Última acción: Ninguna",
+            font=("Arial", 9),
+            bg="#ecf0f1",
+            fg="#7f8c8d"
+        ).pack(side=tk.LEFT, padx=20)
+        
+        # Frame con scroll para la lista
+        frame_scroll = tk.Frame(ventana_backups)
+        frame_scroll.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
+        
+        canvas = tk.Canvas(frame_scroll, bg="#f8f9fa")
+        scrollbar = tk.Scrollbar(frame_scroll, orient="vertical", command=canvas.yview)
+        frame_lista = tk.Frame(canvas, bg="#f8f9fa")
+        
+        frame_lista.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+        
+        canvas.create_window((0, 0), window=frame_lista, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+        
+        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        
+        def actualizar_lista_backups():
+            """Actualiza la lista de backups"""
+            for widget in frame_lista.winfo_children():
+                widget.destroy()
+            
+            backups = db.obtener_lista_backups()
+            
+            if not backups:
+                tk.Label(
+                    frame_lista,
+                    text="No hay backups disponibles",
+                    font=("Arial", 11),
+                    bg="#f8f9fa",
+                    fg="#95a5a6"
+                ).pack(pady=20)
+                return
+            
+            # Crear tarjeta para cada backup
+            for i, backup in enumerate(backups):
+                frame_backup = tk.Frame(frame_lista, bg="white", relief=tk.SOLID, borderwidth=1)
+                frame_backup.pack(fill=tk.X, pady=8)
+                
+                # Header: nombre y fecha
+                frame_header = tk.Frame(frame_backup, bg="#ecf0f1")
+                frame_header.pack(fill=tk.X, padx=15, pady=10)
+                
+                tk.Label(
+                    frame_header,
+                    text=f"#{i+1}: {backup['fecha']}",
+                    font=("Arial", 10, "bold"),
+                    bg="#ecf0f1",
+                    fg="#2c3e50"
+                ).pack(side=tk.LEFT)
+                
+                tk.Label(
+                    frame_header,
+                    text=f"Tamaño: {backup['tamaño']}",
+                    font=("Arial", 9),
+                    bg="#ecf0f1",
+                    fg="#7f8c8d"
+                ).pack(side=tk.RIGHT)
+                
+                # Botones
+                frame_buttons = tk.Frame(frame_backup, bg="white")
+                frame_buttons.pack(fill=tk.X, padx=15, pady=10)
+                
+                def hacer_restaurar(ruta_backup=backup['ruta']):
+                    """Restaura un backup específico"""
+                    if messagebox.askyesno(
+                        "Confirmación",
+                        f"¿Restaurar backup de {backup['fecha']}?\n\n"
+                        "Se creará un backup de la versión actual antes de restaurar."
+                    ):
+                        try:
+                            db.restaurar_backup(ruta_backup)
+                            messagebox.showinfo("Éxito", "Backup restaurado correctamente.\nPor favor, reinicia la aplicación.")
+                            actualizar_lista_backups()
+                        except Exception as e:
+                            messagebox.showerror("Error", f"Error al restaurar:\n{e}")
+                
+                tk.Button(
+                    frame_buttons,
+                    text="↩️ Restaurar",
+                    command=hacer_restaurar,
+                    bg="#3498db",
+                    fg="white",
+                    font=("Arial", 9, "bold"),
+                    padx=15,
+                    pady=5,
+                    relief=tk.FLAT,
+                    cursor="hand2"
+                ).pack(side=tk.LEFT, padx=5)
+                
+                def hacer_eliminar(ruta_backup=backup['ruta'], fecha=backup['fecha']):
+                    """Elimina un backup"""
+                    if messagebox.askyesno("Confirmación", f"¿Eliminar backup de {fecha}?"):
+                        try:
+                            from pathlib import Path
+                            Path(ruta_backup).unlink()
+                            messagebox.showinfo("Éxito", "Backup eliminado")
+                            actualizar_lista_backups()
+                        except Exception as e:
+                            messagebox.showerror("Error", f"Error al eliminar:\n{e}")
+                
+                tk.Button(
+                    frame_buttons,
+                    text="🗑️ Eliminar",
+                    command=hacer_eliminar,
+                    bg="#e74c3c",
+                    fg="white",
+                    font=("Arial", 9, "bold"),
+                    padx=15,
+                    pady=5,
+                    relief=tk.FLAT,
+                    cursor="hand2"
+                ).pack(side=tk.LEFT, padx=5)
+        
+        # Cargar lista inicial
+        actualizar_lista_backups()
 
 
 def iniciar_aplicacion():
     """Función para iniciar la aplicación"""
     root = tk.Tk()
     app = AplicacionClinica(root)
+    
+    def al_cerrar():
+        """Función que se ejecuta al cerrar la aplicación"""
+        try:
+            # Crear un backup automático antes de cerrar
+            db.crear_backup()
+            # Limpiar backups antiguos (mantener últimos 5, eliminar mayores a 30 días)
+            db.limpiar_backups_antiguos(dias=30, cantidad_minima=5)
+        except Exception as e:
+            print(f"Error al crear backup al cerrar: {e}")
+        
+        root.destroy()
+    
+    root.protocol("WM_DELETE_WINDOW", al_cerrar)
     root.mainloop()
 
 

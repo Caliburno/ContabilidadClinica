@@ -2,6 +2,8 @@ import sqlite3
 from datetime import datetime
 from typing import List, Optional
 from pathlib import Path
+import shutil
+import os
 
 from models import (
     Paciente, Sesion, Pago, Informe,
@@ -11,6 +13,109 @@ from models import (
 
 # Ruta a la base de datos
 DB_PATH = Path("data/clinica.db")
+BACKUPS_PATH = Path("backups")
+
+
+def crear_backup() -> str:
+    """
+    Crea un backup de la base de datos con timestamp.
+    Retorna la ruta del archivo creado.
+    """
+    # Crear carpeta backups si no existe
+    BACKUPS_PATH.mkdir(exist_ok=True)
+    
+    # Generar nombre con timestamp
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    backup_name = f"clinica_backup_{timestamp}.db"
+    backup_path = BACKUPS_PATH / backup_name
+    
+    # Copiar base de datos
+    if DB_PATH.exists():
+        shutil.copy2(DB_PATH, backup_path)
+        return str(backup_path)
+    else:
+        raise FileNotFoundError("La base de datos no existe aún")
+
+
+def obtener_lista_backups() -> List[dict]:
+    """
+    Obtiene lista de backups ordenados por fecha (más reciente primero).
+    Retorna lista de dicts con: {'nombre': str, 'fecha': str, 'tamaño': str, 'ruta': str}
+    """
+    if not BACKUPS_PATH.exists():
+        return []
+    
+    backups = []
+    for archivo in BACKUPS_PATH.glob("clinica_backup_*.db"):
+        stat = archivo.stat()
+        # Extraer fecha del nombre: clinica_backup_2025-12-02_14-30-45.db
+        fecha_str = archivo.stem.replace("clinica_backup_", "")
+        # Convertir a formato legible: 2025-12-02 14:30:45
+        fecha_legible = fecha_str.replace("_", " ").replace("-", "-", 2)  # Mantener primer - como separador de fecha
+        fecha_legible = fecha_str[:10] + " " + fecha_str[11:].replace("-", ":")
+        
+        tamaño_mb = f"{stat.st_size / (1024*1024):.2f} MB"
+        
+        backups.append({
+            'nombre': archivo.name,
+            'fecha': fecha_legible,
+            'tamaño': tamaño_mb,
+            'ruta': str(archivo)
+        })
+    
+    # Ordenar por fecha más reciente primero
+    backups.sort(key=lambda x: x['nombre'], reverse=True)
+    return backups
+
+
+def restaurar_backup(ruta_backup: str) -> bool:
+    """
+    Restaura la base de datos desde un backup específico.
+    Crea un backup de la versión actual antes de restaurar.
+    Retorna True si tuvo éxito.
+    """
+    ruta_backup_path = Path(ruta_backup)
+    
+    if not ruta_backup_path.exists():
+        raise FileNotFoundError(f"El backup no existe: {ruta_backup}")
+    
+    # Crear backup de la versión actual antes de restaurar
+    if DB_PATH.exists():
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        backup_actual = BACKUPS_PATH / f"clinica_backup_prerestauracion_{timestamp}.db"
+        BACKUPS_PATH.mkdir(exist_ok=True)
+        shutil.copy2(DB_PATH, backup_actual)
+    
+    # Restaurar el backup deseado
+    shutil.copy2(ruta_backup_path, DB_PATH)
+    return True
+
+
+def limpiar_backups_antiguos(dias: int = 30, cantidad_minima: int = 5):
+    """
+    Elimina backups más antiguos que 'dias' días, pero mantiene al menos 'cantidad_minima'.
+    """
+    if not BACKUPS_PATH.exists():
+        return
+    
+    backups = obtener_lista_backups()
+    
+    # Siempre mantener al menos la cantidad mínima
+    if len(backups) <= cantidad_minima:
+        return
+    
+    from datetime import timedelta
+    fecha_limite = datetime.now() - timedelta(days=dias)
+    
+    for backup in backups[cantidad_minima:]:  # Saltar los primeros (más recientes)
+        ruta = Path(backup['ruta'])
+        fecha_backup = datetime.fromtimestamp(ruta.stat().st_mtime)
+        
+        if fecha_backup < fecha_limite:
+            try:
+                ruta.unlink()
+            except Exception as e:
+                print(f"Error al eliminar backup {ruta.name}: {e}")
 
 
 def inicializar_base_datos():
@@ -808,3 +913,183 @@ def exportar_reporte_pdf(stats: dict, mes: int, año: int, ruta_archivo: str):
     
     # Construir PDF
     doc.build(elements)
+
+
+# ===== FUNCIONES DE EXPORTACIÓN A CSV =====
+
+def exportar_pacientes_csv(ruta_archivo: str):
+    """
+    Exporta la lista de pacientes a CSV con información resumida.
+    Incluye: Nombre, Tipo, Costo Sesión, Deuda Actual, Arancel Social, Notas
+    """
+    import csv
+    
+    pacientes = obtener_todos_pacientes()
+    
+    with open(ruta_archivo, 'w', newline='', encoding='utf-8') as csvfile:
+        fieldnames = ['Nombre', 'Tipo', 'Costo Sesión', 'Deuda Actual', 'Arancel Social', 'Notas']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        
+        writer.writeheader()
+        for pac in pacientes:
+            writer.writerow({
+                'Nombre': pac.nombre,
+                'Tipo': pac.tipo.value,
+                'Costo Sesión': f"${pac.costo_sesion:,.2f}",
+                'Deuda Actual': f"${pac.deuda:,.2f}",
+                'Arancel Social': 'Sí' if pac.arancel_social else 'No',
+                'Notas': pac.notas
+            })
+
+
+def exportar_sesiones_csv(ruta_archivo: str):
+    """
+    Exporta todas las sesiones a CSV.
+    Incluye: Paciente, Fecha, Tipo, Precio, Estado, Notas
+    """
+    import csv
+    
+    pacientes = obtener_todos_pacientes()
+    
+    with open(ruta_archivo, 'w', newline='', encoding='utf-8') as csvfile:
+        fieldnames = ['Paciente', 'Fecha', 'Tipo', 'Precio', 'Estado', 'Notas']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        
+        writer.writeheader()
+        for pac in pacientes:
+            sesiones = obtener_sesiones_paciente(pac.id)
+            for sesion in sesiones:
+                writer.writerow({
+                    'Paciente': pac.nombre,
+                    'Fecha': sesion.fecha.strftime("%d/%m/%Y"),
+                    'Tipo': sesion.tipo.value,
+                    'Precio': f"${sesion.precio:,.2f}",
+                    'Estado': sesion.estado.value,
+                    'Notas': sesion.notas
+                })
+
+
+def exportar_pagos_csv(ruta_archivo: str):
+    """
+    Exporta todos los pagos a CSV.
+    Incluye: Paciente, Fecha, Monto, Concepto, Notas
+    """
+    import csv
+    
+    pacientes = obtener_todos_pacientes()
+    
+    with open(ruta_archivo, 'w', newline='', encoding='utf-8') as csvfile:
+        fieldnames = ['Paciente', 'Fecha', 'Monto', 'Concepto', 'Notas']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        
+        writer.writeheader()
+        for pac in pacientes:
+            pagos = obtener_pagos_paciente(pac.id)
+            for pago in pagos:
+                writer.writerow({
+                    'Paciente': pac.nombre,
+                    'Fecha': pago.fecha.strftime("%d/%m/%Y"),
+                    'Monto': f"${pago.monto:,.2f}",
+                    'Concepto': pago.concepto.value,
+                    'Notas': pago.notas
+                })
+
+
+def exportar_informes_csv(ruta_archivo: str):
+    """
+    Exporta todos los informes a CSV.
+    Incluye: Paciente, Tipo, Estado, Precio, Monto Pagado, Estado de Pago, Notas
+    """
+    import csv
+    
+    pacientes = obtener_todos_pacientes()
+    
+    with open(ruta_archivo, 'w', newline='', encoding='utf-8') as csvfile:
+        fieldnames = ['Paciente', 'Tipo', 'Estado', 'Precio', 'Monto Pagado', 'Estado Pago', 'Notas']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        
+        writer.writeheader()
+        for pac in pacientes:
+            informes = obtener_informes_paciente(pac.id)
+            for informe in informes:
+                writer.writerow({
+                    'Paciente': pac.nombre,
+                    'Tipo': informe.tipo.value,
+                    'Estado': informe.estado.value,
+                    'Precio': f"${informe.precio:,.2f}",
+                    'Monto Pagado': f"${informe.monto_pagado:,.2f}",
+                    'Estado Pago': informe.estado_pago.value,
+                    'Notas': informe.notas
+                })
+
+
+def exportar_resumen_csv(ruta_archivo: str):
+    """
+    Exporta un resumen general con estadísticas.
+    """
+    import csv
+    from datetime import datetime as dt
+    
+    pacientes = obtener_todos_pacientes()
+    
+    total_deuda = sum(p.deuda for p in pacientes if p.deuda > 0)
+    total_saldo_favor = sum(abs(p.deuda) for p in pacientes if p.deuda < 0)
+    
+    # Contar entidades
+    total_sesiones = sum(len(obtener_sesiones_paciente(p.id)) for p in pacientes)
+    total_pagos = sum(len(obtener_pagos_paciente(p.id)) for p in pacientes)
+    total_informes = sum(len(obtener_informes_paciente(p.id)) for p in pacientes)
+    
+    with open(ruta_archivo, 'w', newline='', encoding='utf-8') as csvfile:
+        fieldnames = ['Métrica', 'Valor']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        
+        writer.writeheader()
+        writer.writerow({'Métrica': 'Fecha de Exportación', 'Valor': dt.now().strftime("%d/%m/%Y %H:%M:%S")})
+        writer.writerow({'Métrica': '', 'Valor': ''})
+        writer.writerow({'Métrica': 'Total Pacientes', 'Valor': len(pacientes)})
+        writer.writerow({'Métrica': 'Total Sesiones', 'Valor': total_sesiones})
+        writer.writerow({'Métrica': 'Total Pagos', 'Valor': total_pagos})
+        writer.writerow({'Métrica': 'Total Informes', 'Valor': total_informes})
+        writer.writerow({'Métrica': '', 'Valor': ''})
+        writer.writerow({'Métrica': 'Deuda Total (owed)', 'Valor': f"${total_deuda:,.2f}"})
+        writer.writerow({'Métrica': 'Saldo a Favor (prepaid)', 'Valor': f"${total_saldo_favor:,.2f}"})
+        writer.writerow({'Métrica': '', 'Valor': ''})
+        
+        # Por tipo de paciente
+        for tipo in TipoPaciente:
+            pacientes_tipo = [p for p in pacientes if p.tipo == tipo]
+            if pacientes_tipo:
+                deuda_tipo = sum(p.deuda for p in pacientes_tipo if p.deuda > 0)
+                writer.writerow({'Métrica': f'Deuda - {tipo.value}', 'Valor': f"${deuda_tipo:,.2f}"})
+
+
+def exportar_todo(directorio: str) -> dict:
+    """
+    Exporta todos los datos en múltiples archivos CSV.
+    Retorna un diccionario con las rutas de los archivos creados.
+    """
+    from pathlib import Path
+    
+    ruta_dir = Path(directorio)
+    ruta_dir.mkdir(parents=True, exist_ok=True)
+    
+    archivos = {}
+    
+    # Exportar cada tipo de datos
+    archivos['pacientes'] = str(ruta_dir / 'pacientes.csv')
+    exportar_pacientes_csv(archivos['pacientes'])
+    
+    archivos['sesiones'] = str(ruta_dir / 'sesiones.csv')
+    exportar_sesiones_csv(archivos['sesiones'])
+    
+    archivos['pagos'] = str(ruta_dir / 'pagos.csv')
+    exportar_pagos_csv(archivos['pagos'])
+    
+    archivos['informes'] = str(ruta_dir / 'informes.csv')
+    exportar_informes_csv(archivos['informes'])
+    
+    archivos['resumen'] = str(ruta_dir / 'resumen.csv')
+    exportar_resumen_csv(archivos['resumen'])
+    
+    return archivos
