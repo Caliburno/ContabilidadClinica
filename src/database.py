@@ -295,38 +295,6 @@ def obtener_pagos_paciente(paciente_id: int) -> List[Pago]:
     return pagos
 
 
-def editar_pago(pago: Pago):
-    """Edita un pago existente"""
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    
-    cursor.execute("""
-        UPDATE pagos 
-        SET fecha=?, monto=?, concepto=?, notas=?
-        WHERE id=?
-    """, (
-        pago.fecha.isoformat(),
-        pago.monto,
-        pago.concepto.name,
-        pago.notas,
-        pago.id
-    ))
-    
-    conn.commit()
-    conn.close()
-
-
-def eliminar_pago(pago_id: int):
-    """Elimina un pago"""
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    
-    cursor.execute("DELETE FROM pagos WHERE id=?", (pago_id,))
-    
-    conn.commit()
-    conn.close()
-
-
 # ========== FUNCIONES PARA INFORMES ==========
 
 def guardar_informe(informe: Informe) -> int:
@@ -400,131 +368,131 @@ def obtener_informes_paciente(paciente_id: int) -> List[Informe]:
     return informes
 
 
+# ========== LÓGICA DE APLICACIÓN DE PAGOS ==========
+
+def aplicar_pago_automatico(paciente_id: int, monto: float) -> dict:
+    """
+    Aplica un pago automáticamente siguiendo esta prioridad:
+    1. Sesiones pendientes (más antiguas primero)
+    2. Informes pendientes con pago faltante
+    3. Saldo a favor (deuda negativa)
+    
+    Retorna un diccionario con los detalles de qué se pagó
+    """
+    monto_restante = monto
+    aplicaciones = {
+        "sesiones_pagadas": [],
+        "informes_actualizados": [],
+        "saldo_a_favor": 0
+    }
+    
+    # PASO 1: Aplicar a sesiones pendientes (más antiguas primero)
+    sesiones = obtener_sesiones_paciente(paciente_id)
+    sesiones_pendientes = [s for s in sesiones if s.estado == EstadoSesion.PENDIENTE]
+    sesiones_pendientes.sort(key=lambda s: s.fecha)  # Más antiguas primero
+    
+    for sesion in sesiones_pendientes:
+        if monto_restante <= 0.01:  # Permitir pequeños errores de redondeo
+            break
+        
+        if monto_restante >= sesion.precio - 0.01:
+            # Paga la sesión completa
+            sesion.estado = EstadoSesion.PAGA
+            guardar_sesion(sesion)
+            aplicaciones["sesiones_pagadas"].append({
+                "id": sesion.id,
+                "tipo": sesion.tipo.value,
+                "fecha": sesion.fecha.strftime("%d/%m/%Y"),
+                "precio": sesion.precio
+            })
+            monto_restante -= sesion.precio
+        else:
+            # No alcanza para esta sesión
+            break
+    
+    # PASO 2: Aplicar a informes pendientes
+    if monto_restante > 0.01:
+        informes = obtener_informes_paciente(paciente_id)
+        informes_pendientes = [
+            i for i in informes 
+            if i.estado_pago != EstadoPagoInforme.PAGADO
+        ]
+        # Ordenar por fecha de creación (más antiguos primero)
+        informes_pendientes.sort(key=lambda i: i.fecha_creacion)
+        
+        for informe in informes_pendientes:
+            if monto_restante <= 0.01:
+                break
+            
+            deuda_informe = informe.precio - informe.monto_pagado
+            
+            if monto_restante >= deuda_informe - 0.01:
+                # Paga el informe completo
+                informe.monto_pagado = informe.precio
+                informe.estado_pago = EstadoPagoInforme.PAGADO
+                monto_restante -= deuda_informe
+                aplicaciones["informes_actualizados"].append({
+                    "id": informe.id,
+                    "tipo": informe.tipo.value,
+                    "monto_aplicado": deuda_informe,
+                    "nuevo_estado": EstadoPagoInforme.PAGADO.value
+                })
+            else:
+                # Pago parcial
+                informe.monto_pagado += monto_restante
+                informe.estado_pago = EstadoPagoInforme.PAGO_PARCIAL
+                aplicaciones["informes_actualizados"].append({
+                    "id": informe.id,
+                    "tipo": informe.tipo.value,
+                    "monto_aplicado": monto_restante,
+                    "nuevo_estado": EstadoPagoInforme.PAGO_PARCIAL.value
+                })
+                monto_restante = 0
+            
+            guardar_informe(informe)
+    
+    # PASO 3: Si sobra dinero, queda como saldo a favor (deuda negativa)
+    if monto_restante > 0.01:
+        aplicaciones["saldo_a_favor"] = round(monto_restante, 2)
+    
+    # Actualizar deuda del paciente
+    paciente = obtener_paciente(paciente_id)
+    deuda_anterior = paciente.deuda
+    
+    # Recalcular deuda desde cero basada en sesiones e informes pendientes
+    deuda_sesiones = sum(s.precio for s in obtener_sesiones_paciente(paciente_id) 
+                         if s.estado == EstadoSesion.PENDIENTE)
+    deuda_informes = sum(i.precio - i.monto_pagado 
+                         for i in obtener_informes_paciente(paciente_id) 
+                         if i.estado_pago != EstadoPagoInforme.PAGADO)
+    
+    deuda_total = deuda_sesiones + deuda_informes
+    
+    # Si hay saldo a favor (monto_restante), restar de la deuda (quedará negativa)
+    if monto_restante > 0.01:
+        deuda_total -= monto_restante
+    
+    paciente.deuda = deuda_total
+    guardar_paciente(paciente)
+    
+    aplicaciones["deuda_anterior"] = deuda_anterior
+    aplicaciones["deuda_nueva"] = paciente.deuda
+    
+    return aplicaciones
+
+
 def actualizar_deuda_paciente(paciente_id: int):
     """
-    Recalcula la deuda del paciente distribuyendo pagos según prioridad.
-    
-    Algoritmo:
-    1. Construir lista de ítems pendientes (sesiones + informes)
-    2. Sumar todos los pagos del paciente
-    3. Calcular qué se paga sin modificar estados
-    4. Actualizar estados en BD
-    5. Calcular deuda final = suma de lo que quedó pendiente
+    Recalcula la deuda total del paciente basándose en sesiones e informes pendientes
     """
     sesiones = obtener_sesiones_paciente(paciente_id)
     informes = obtener_informes_paciente(paciente_id)
-    pagos = obtener_pagos_paciente(paciente_id)
     
-    # Obtener saldo total disponible para pagar
-    saldo_pagador = sum(p.monto for p in pagos)
+    deuda_sesiones = sum(s.precio for s in sesiones if s.estado == EstadoSesion.PENDIENTE)
+    deuda_informes = sum(i.precio - i.monto_pagado for i in informes if i.estado_pago != EstadoPagoInforme.PAGADO)
     
-    # PASO 1: Construir lista de ítems pendientes en orden de prioridad
-    # (sin modificar nada en la BD todavía)
-    items_pendientes = []
-    
-    # Agregar sesiones pendientes (más antiguas primero)
-    sesiones_pendientes = [s for s in sesiones if s.estado == EstadoSesion.PENDIENTE]
-    sesiones_pendientes.sort(key=lambda s: s.fecha)
-    for sesion in sesiones_pendientes:
-        items_pendientes.append({
-            'tipo': 'sesion',
-            'objeto': sesion,
-            'valor': sesion.precio,
-            'pagado': False,
-            'monto_pagado': 0
-        })
-    
-    # Agregar informes pendientes/parciales (más antiguos primero)
-    informes_por_pagar = [
-        i for i in informes 
-        if i.estado_pago != EstadoPagoInforme.PAGADO
-    ]
-    informes_por_pagar.sort(key=lambda i: i.fecha_creacion)
-    for informe in informes_por_pagar:
-        deuda_restante = informe.precio - informe.monto_pagado
-        items_pendientes.append({
-            'tipo': 'informe',
-            'objeto': informe,
-            'valor': deuda_restante,
-            'pagado': False,
-            'monto_pagado': 0
-        })
-    
-    # PASO 2: Simular distribución de pagos sin modificar BD
-    saldo_restante = saldo_pagador
-    
-    for item in items_pendientes:
-        if saldo_restante <= 0.01:
-            break
-        
-        valor_item = item['valor']
-        
-        if item['tipo'] == 'sesion':
-            if saldo_restante >= valor_item - 0.01:
-                # Sesión se paga completamente
-                item['pagado'] = True
-                item['monto_pagado'] = valor_item
-                saldo_restante -= valor_item
-            else:
-                # No alcanza para pagar esta sesión
-                break
-        
-        elif item['tipo'] == 'informe':
-            if saldo_restante >= valor_item - 0.01:
-                # Informe se paga completamente
-                item['pagado'] = True
-                item['monto_pagado'] = valor_item
-                saldo_restante -= valor_item
-            else:
-                # Pago parcial al informe
-                item['monto_pagado'] = saldo_restante
-                saldo_restante = 0
-                break
-    
-    # PASO 3: Actualizar estados en BD según lo calculado
-    for item in items_pendientes:
-        objeto = item['objeto']
-        
-        if item['tipo'] == 'sesion':
-            if item['pagado']:
-                objeto.estado = EstadoSesion.PAGA
-            else:
-                objeto.estado = EstadoSesion.PENDIENTE
-            guardar_sesion(objeto)
-        
-        elif item['tipo'] == 'informe':
-            # Sumar lo que ya estaba pagado con lo nuevo que se pagó en esta ronda
-            objeto.monto_pagado = objeto.monto_pagado + item['monto_pagado']
-            
-            # Asegurar que no supere el precio
-            if objeto.monto_pagado >= objeto.precio - 0.01:
-                objeto.monto_pagado = objeto.precio
-                objeto.estado_pago = EstadoPagoInforme.PAGADO
-            elif objeto.monto_pagado > 0.01:
-                objeto.estado_pago = EstadoPagoInforme.PAGO_PARCIAL
-            else:
-                objeto.estado_pago = EstadoPagoInforme.PENDIENTE
-            
-            guardar_informe(objeto)
-    
-    # PASO 4: Calcular deuda final basado en estados reales después de actualizar
-    sesiones_actualizadas = obtener_sesiones_paciente(paciente_id)
-    informes_actualizados = obtener_informes_paciente(paciente_id)
-    
-    deuda_sesiones = sum(s.precio for s in sesiones_actualizadas 
-                         if s.estado == EstadoSesion.PENDIENTE)
-    deuda_informes = sum(i.precio - i.monto_pagado for i in informes_actualizados 
-                         if i.estado_pago != EstadoPagoInforme.PAGADO)
-    
-    deuda_final = deuda_sesiones + deuda_informes
-    
-    # Si hay saldo restante sin usar, es crédito negativo
-    if saldo_restante > 0.01:
-        deuda_final = -saldo_restante
-    
-    # Guardar deuda actualizada
     paciente = obtener_paciente(paciente_id)
-    paciente.deuda = deuda_final
+    paciente.deuda = deuda_sesiones + deuda_informes
     guardar_paciente(paciente)
 
 

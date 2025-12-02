@@ -1138,6 +1138,27 @@ class AplicacionClinica:
             self.actualizar_pestañas()
             self.cargar_lista_pacientes()
     
+    def eliminar_pago(self, pago: Pago):
+        """Elimina un pago con confirmación"""
+        respuesta = messagebox.askyesno(
+            "Confirmar eliminación",
+            f"¿Estás seguro de eliminar este pago?\n\n"
+            f"Fecha: {pago.fecha.strftime('%d/%m/%Y')}\n"
+            f"Monto: ${pago.monto:,.0f}\n"
+            f"Concepto: {pago.concepto.value}"
+        )
+        
+        if respuesta:
+            db.eliminar_pago(pago.id)
+            
+            # Actualizar deuda del paciente
+            db.actualizar_deuda_paciente(self.paciente_actual.id)
+            
+            # Recargar y actualizar
+            self.paciente_actual = db.obtener_paciente(self.paciente_actual.id)
+            self.actualizar_pestañas()
+            self.cargar_lista_pacientes()
+    
     def editar_sesion(self, sesion: Sesion):
         """Edita una sesión existente"""
         if self.paciente_actual is None:
@@ -1553,139 +1574,20 @@ class AplicacionClinica:
                 justify=tk.LEFT
             ).pack(anchor=tk.W, pady=(5, 0))
         
-        # Cuarta fila: Botones de editar y borrar
+        # Botones de acción
         frame_botones = tk.Frame(frame_contenido, bg="white")
         frame_botones.pack(fill=tk.X, pady=(10, 0))
         
         tk.Button(
             frame_botones,
-            text="✎ Editar",
-            command=lambda: self.abrir_dialogo_editar_pago(pago),
-            bg="#3498db",
-            fg="white",
-            font=("Arial", 9),
-            padx=10,
-            pady=3
-        ).pack(side=tk.LEFT, padx=5)
-        
-        tk.Button(
-            frame_botones,
-            text="🗑️ Borrar",
-            command=lambda: self.borrar_pago(pago),
+            text="🗑️ Eliminar",
+            command=lambda p=pago: self.eliminar_pago(p),
             bg="#e74c3c",
             fg="white",
             font=("Arial", 9),
             padx=10,
             pady=3
-        ).pack(side=tk.LEFT)
-
-    def abrir_dialogo_editar_pago(self, pago: Pago):
-        """Abre diálogo para editar un pago existente"""
-        dialogo = tk.Toplevel(self.root)
-        dialogo.title("Editar Pago")
-        dialogo.geometry("400x300")
-        
-        # Fecha
-        tk.Label(dialogo, text="Fecha:", font=("Arial", 10, "bold")).pack(anchor=tk.W, padx=20, pady=(20, 5))
-        entry_fecha = tk.Entry(dialogo, font=("Arial", 10), width=30)
-        entry_fecha.insert(0, pago.fecha.strftime("%d/%m/%Y"))
-        entry_fecha.pack(fill=tk.X, padx=20, pady=5)
-        
-        # Monto
-        tk.Label(dialogo, text="Monto:", font=("Arial", 10, "bold")).pack(anchor=tk.W, padx=20, pady=(10, 5))
-        entry_monto = tk.Entry(dialogo, font=("Arial", 10), width=30)
-        entry_monto.insert(0, str(pago.monto))
-        entry_monto.pack(fill=tk.X, padx=20, pady=5)
-        
-        # Concepto
-        tk.Label(dialogo, text="Concepto:", font=("Arial", 10, "bold")).pack(anchor=tk.W, padx=20, pady=(10, 5))
-        combo_concepto = ttk.Combobox(
-            dialogo,
-            values=[c.value for c in ConceptoPago],
-            font=("Arial", 10),
-            state="readonly",
-            width=27
-        )
-        combo_concepto.set(pago.concepto.value)
-        combo_concepto.pack(fill=tk.X, padx=20, pady=5)
-        
-        # Notas
-        tk.Label(dialogo, text="Notas:", font=("Arial", 10, "bold")).pack(anchor=tk.W, padx=20, pady=(10, 5))
-        text_notas = tk.Text(dialogo, font=("Arial", 10), height=4, width=45)
-        text_notas.insert("1.0", pago.notas or "")
-        text_notas.pack(fill=tk.X, padx=20, pady=5)
-        
-        def guardar_cambios():
-            try:
-                fecha = datetime.strptime(entry_fecha.get(), "%d/%m/%Y")
-                monto = float(entry_monto.get())
-                concepto = ConceptoPago[combo_concepto.get().upper().replace(" ", "_")]
-                notas = text_notas.get("1.0", tk.END).strip()
-                
-                pago.fecha = fecha
-                pago.monto = monto
-                pago.concepto = concepto
-                pago.notas = notas
-                
-                db.editar_pago(pago)
-                
-                # Actualizar deuda
-                db.actualizar_deuda_paciente(self.paciente_actual.id)
-                
-                # Recargar paciente y actualizar vista
-                self.paciente_actual = db.obtener_paciente(self.paciente_actual.id)
-                self.actualizar_pestañas()
-                
-                messagebox.showinfo("Éxito", "Pago actualizado correctamente")
-                dialogo.destroy()
-                
-            except ValueError as e:
-                messagebox.showerror("Error", f"Error al actualizar pago: {str(e)}")
-        
-        # Botones
-        frame_botones = tk.Frame(dialogo)
-        frame_botones.pack(fill=tk.X, padx=20, pady=20)
-        
-        tk.Button(
-            frame_botones,
-            text="Guardar",
-            command=guardar_cambios,
-            bg="#27ae60",
-            fg="white",
-            font=("Arial", 10, "bold"),
-            padx=20,
-            pady=5
-        ).pack(side=tk.LEFT, padx=5)
-        
-        tk.Button(
-            frame_botones,
-            text="Cancelar",
-            command=dialogo.destroy,
-            bg="#95a5a6",
-            fg="white",
-            font=("Arial", 10, "bold"),
-            padx=20,
-            pady=5
-        ).pack(side=tk.LEFT)
-
-    def borrar_pago(self, pago: Pago):
-        """Borra un pago después de pedir confirmación"""
-        respuesta = messagebox.askyesno(
-            "Confirmar",
-            f"¿Seguro que deseas borrar el pago de ${pago.monto:,.0f} del {pago.fecha.strftime('%d/%m/%Y')}?"
-        )
-        
-        if respuesta:
-            db.eliminar_pago(pago.id)
-            
-            # Actualizar deuda
-            db.actualizar_deuda_paciente(self.paciente_actual.id)
-            
-            # Recargar paciente y actualizar vista
-            self.paciente_actual = db.obtener_paciente(self.paciente_actual.id)
-            self.actualizar_pestañas()
-            
-            messagebox.showinfo("Éxito", "Pago eliminado correctamente")
+        ).pack(side=tk.LEFT, padx=(0, 5))
 
 
 # ===== PESTAÑA DE INFORMES =====
@@ -2363,15 +2265,42 @@ class AplicacionClinica:
                 # Guardar pago en BD
                 db.guardar_pago(pago)
                 
-                # Actualizar deuda del paciente
-                db.actualizar_deuda_paciente(self.paciente_actual.id)
+                # APLICAR EL PAGO AUTOMÁTICAMENTE
+                resultado = db.aplicar_pago_automatico(self.paciente_actual.id, monto)
+                
+                # Construir mensaje de éxito con detalles
+                mensaje_detalle = f"Pago de ${monto:,.2f} registrado y aplicado:\n\n"
+                
+                # Sesiones pagadas
+                if resultado["sesiones_pagadas"]:
+                    mensaje_detalle += f"✓ Sesiones pagadas: {len(resultado['sesiones_pagadas'])}\n"
+                    for sesion in resultado["sesiones_pagadas"]:
+                        mensaje_detalle += f"  • {sesion['tipo']} ({sesion['fecha']}) - ${sesion['precio']:,.2f}\n"
+                    mensaje_detalle += "\n"
+                
+                # Informes actualizados
+                if resultado["informes_actualizados"]:
+                    mensaje_detalle += f"✓ Informes actualizados: {len(resultado['informes_actualizados'])}\n"
+                    for informe in resultado["informes_actualizados"]:
+                        mensaje_detalle += f"  • {informe['tipo']} - ${informe['monto_aplicado']:,.2f} ({informe['nuevo_estado']})\n"
+                    mensaje_detalle += "\n"
+                
+                # Saldo a favor
+                if resultado["saldo_a_favor"] > 0.01:
+                    mensaje_detalle += f"✓ Saldo a favor: ${resultado['saldo_a_favor']:,.2f}\n\n"
+                
+                # Deuda actualizada
+                deuda_anterior = resultado["deuda_anterior"]
+                deuda_nueva = resultado["deuda_nueva"]
+                mensaje_detalle += f"Deuda: ${deuda_anterior:,.2f} → ${deuda_nueva:,.2f}"
+                
+                messagebox.showinfo("Pago Registrado", mensaje_detalle)
                 
                 # Recargar y actualizar
                 self.paciente_actual = db.obtener_paciente(self.paciente_actual.id)
                 self.actualizar_pestañas()
                 self.cargar_lista_pacientes()
                 
-                messagebox.showinfo("Éxito", f"Pago de ${monto:,.2f} registrado correctamente")
                 dialogo.destroy()
                 
             except ValueError as e:
