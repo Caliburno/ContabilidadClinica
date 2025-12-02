@@ -713,10 +713,12 @@ class AplicacionClinica:
     
     def mostrar_reporte_mensual(self):
         """Muestra el reporte mensual mejorado con desglose por tipo de paciente"""
+        from datetime import datetime
+        
         # Crear ventana de reporte
         ventana_reporte = tk.Toplevel(self.root)
         ventana_reporte.title("Reporte Mensual")
-        ventana_reporte.geometry("900x700")
+        ventana_reporte.geometry("900x750")
         
         # Título
         tk.Label(
@@ -724,7 +726,281 @@ class AplicacionClinica:
             text="Reporte Mensual de Clínica",
             font=("Arial", 16, "bold"),
             fg="#2c3e50"
-        ).pack(pady=15)
+        ).pack(pady=10)
+        
+        # ===== SELECTOR DE MES/AÑO =====
+        frame_selector = tk.Frame(ventana_reporte, bg="#ecf0f1", relief=tk.SOLID, borderwidth=1)
+        frame_selector.pack(fill=tk.X, padx=20, pady=10)
+        
+        tk.Label(
+            frame_selector,
+            text="Seleccionar mes:",
+            font=("Arial", 10),
+            bg="#ecf0f1"
+        ).pack(side=tk.LEFT, padx=10, pady=10)
+        
+        meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
+                 "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+        
+        ahora = datetime.now()
+        combo_mes = ttk.Combobox(
+            frame_selector,
+            values=meses,
+            state="readonly",
+            width=15,
+            font=("Arial", 10)
+        )
+        combo_mes.set(meses[ahora.month - 1])
+        combo_mes.pack(side=tk.LEFT, padx=5)
+        
+        tk.Label(
+            frame_selector,
+            text="Año:",
+            font=("Arial", 10),
+            bg="#ecf0f1"
+        ).pack(side=tk.LEFT, padx=(20, 5))
+        
+        años = [str(año) for año in range(2020, ahora.year + 1)]
+        combo_año = ttk.Combobox(
+            frame_selector,
+            values=años,
+            state="readonly",
+            width=10,
+            font=("Arial", 10)
+        )
+        combo_año.set(str(ahora.year))
+        combo_año.pack(side=tk.LEFT, padx=5)
+        
+        def actualizar_reporte():
+            """Actualiza el reporte con el mes/año seleccionado"""
+            mes = combo_mes.current() + 1
+            año = int(combo_año.get())
+            
+            # Limpiar frame_reporte
+            for widget in frame_reporte.winfo_children():
+                widget.destroy()
+            
+            # Obtener estadísticas del mes seleccionado
+            stats = db.obtener_estadisticas_mensuales(mes, año)
+            
+            # ===== SECCIÓN 1: INGRESOS DEL MES =====
+            tk.Label(
+                frame_reporte,
+                text="💰 INGRESOS DEL MES",
+                font=("Arial", 12, "bold"),
+                bg="#f8f9fa",
+                fg="#27ae60"
+            ).pack(pady=(15, 10), anchor="w", padx=20)
+            
+            # Frame de ingresos
+            frame_ingresos = tk.Frame(frame_reporte, bg="white", relief=tk.SOLID, borderwidth=1)
+            frame_ingresos.pack(fill=tk.X, padx=20, pady=5)
+            
+            ingresos_data = [
+                ("Total cobrado:", f"${stats['total_cobrado']:,.2f}", "#27ae60"),
+                ("  └─ Pacientes Estándar:", f"${stats['cobrado_estandar']:,.2f}", "#3498db"),
+                ("  └─ Pacientes Mensuales:", f"${stats['cobrado_mensual']:,.2f}", "#9b59b6"),
+                ("  └─ Diagnósticos:", f"${stats['cobrado_diagnostico']:,.2f}", "#e74c3c"),
+                ("Informes (por cobrar):", f"${stats['informes_total']:,.2f}", "#f39c12"),
+            ]
+            
+            for label, valor, color in ingresos_data:
+                frame_fila = tk.Frame(frame_ingresos, bg="white")
+                frame_fila.pack(fill=tk.X, padx=15, pady=5)
+                
+                tk.Label(
+                    frame_fila,
+                    text=label,
+                    font=("Arial", 10),
+                    bg="white",
+                    fg="#2c3e50",
+                    anchor="w",
+                    width=35
+                ).pack(side=tk.LEFT)
+                
+                tk.Label(
+                    frame_fila,
+                    text=valor,
+                    font=("Arial", 10, "bold"),
+                    bg="white",
+                    fg=color
+                ).pack(side=tk.RIGHT, padx=10)
+            
+            # Separador
+            ttk.Separator(frame_reporte, orient='horizontal').pack(fill=tk.X, pady=15, padx=20)
+            
+            # ===== SECCIÓN 2: DEUDA ACUMULADA =====
+            tk.Label(
+                frame_reporte,
+                text="📊 DEUDA ACUMULADA",
+                font=("Arial", 12, "bold"),
+                bg="#f8f9fa",
+                fg="#e74c3c"
+            ).pack(pady=(15, 10), anchor="w", padx=20)
+            
+            # Frame de deuda
+            frame_deuda = tk.Frame(frame_reporte, bg="white", relief=tk.SOLID, borderwidth=1)
+            frame_deuda.pack(fill=tk.X, padx=20, pady=5)
+            
+            deuda_data = [
+                ("Total deuda:", f"${stats['deuda_total']:,.2f}", "#e74c3c"),
+                ("  └─ Pacientes Estándar:", f"${stats['deuda_estandar']:,.2f}", "#3498db"),
+                ("  └─ Pacientes Mensuales:", f"${stats['deuda_mensual']:,.2f}", "#9b59b6"),
+                ("  └─ Diagnósticos:", f"${stats['deuda_diagnostico']:,.2f}", "#e74c3c"),
+            ]
+            
+            for label, valor, color in deuda_data:
+                frame_fila = tk.Frame(frame_deuda, bg="white")
+                frame_fila.pack(fill=tk.X, padx=15, pady=5)
+                
+                tk.Label(
+                    frame_fila,
+                    text=label,
+                    font=("Arial", 10),
+                    bg="white",
+                    fg="#2c3e50",
+                    anchor="w",
+                    width=35
+                ).pack(side=tk.LEFT)
+                
+                tk.Label(
+                    frame_fila,
+                    text=valor,
+                    font=("Arial", 10, "bold"),
+                    bg="white",
+                    fg=color
+                ).pack(side=tk.RIGHT, padx=10)
+            
+            # Separador
+            ttk.Separator(frame_reporte, orient='horizontal').pack(fill=tk.X, pady=15, padx=20)
+            
+            # ===== SECCIÓN 3: RESUMEN POR PACIENTE =====
+            if stats["detalle_pacientes"]:
+                tk.Label(
+                    frame_reporte,
+                    text="👥 RESUMEN POR PACIENTE",
+                    font=("Arial", 12, "bold"),
+                    bg="#f8f9fa",
+                    fg="#2c3e50"
+                ).pack(pady=(15, 10), anchor="w", padx=20)
+                
+                for pac in stats["detalle_pacientes"]:
+                    frame_pac = tk.Frame(frame_reporte, bg="#ecf0f1", relief=tk.SOLID, borderwidth=1)
+                    frame_pac.pack(fill=tk.X, pady=5, padx=20)
+                    
+                    # Nombre y tipo
+                    frame_header = tk.Frame(frame_pac, bg="#ecf0f1")
+                    frame_header.pack(fill=tk.X, padx=10, pady=(8, 0))
+                    
+                    tk.Label(
+                        frame_header,
+                        text=pac["nombre"],
+                        font=("Arial", 10, "bold"),
+                        bg="#ecf0f1",
+                        fg="#2c3e50"
+                    ).pack(side=tk.LEFT)
+                    
+                    tipo_color = {
+                        "Estándar": "#3498db",
+                        "Mensual": "#9b59b6",
+                        "Diagnóstico": "#e74c3c"
+                    }.get(pac["tipo"], "#95a5a6")
+                    
+                    tk.Label(
+                        frame_header,
+                        text=f"({pac['tipo']})",
+                        font=("Arial", 9),
+                        bg="#ecf0f1",
+                        fg=tipo_color
+                    ).pack(side=tk.LEFT, padx=5)
+                    
+                    if pac["arancel_social"]:
+                        tk.Label(
+                            frame_header,
+                            text="🏥 Arancel Social",
+                            font=("Arial", 8),
+                            bg="#ecf0f1",
+                            fg="#f39c12"
+                        ).pack(side=tk.LEFT, padx=5)
+                    
+                    # Cobrado y deuda
+                    frame_datos = tk.Frame(frame_pac, bg="#ecf0f1")
+                    frame_datos.pack(fill=tk.X, padx=20, pady=5)
+                    
+                    tk.Label(
+                        frame_datos,
+                        text=f"Cobrado: ${pac['cobrado']:,.2f}",
+                        font=("Arial", 9),
+                        bg="#ecf0f1",
+                        fg="#27ae60"
+                    ).pack(side=tk.LEFT)
+                    
+                    tk.Label(
+                        frame_datos,
+                        text=f"Deuda: ${pac['deuda']:,.2f}",
+                        font=("Arial", 9),
+                        bg="#ecf0f1",
+                        fg="#e74c3c"
+                    ).pack(side=tk.RIGHT, padx=10)
+                    
+                    tk.Label(frame_pac, bg="#ecf0f1").pack(pady=3)
+            
+            else:
+                tk.Label(
+                    frame_reporte,
+                    text="No hay movimientos en el mes seleccionado",
+                    font=("Arial", 11),
+                    bg="#f8f9fa",
+                    fg="#95a5a6"
+                ).pack(pady=20)
+            
+            # Guardar stats para usar en exportar PDF
+            actualizar_reporte.stats_actual = stats
+        
+        # Botón para actualizar
+        tk.Button(
+            frame_selector,
+            text="🔄 Actualizar",
+            command=actualizar_reporte,
+            bg="#3498db",
+            fg="white",
+            font=("Arial", 10),
+            padx=15
+        ).pack(side=tk.LEFT, padx=20)
+        
+        # Botón para exportar PDF
+        def exportar_pdf():
+            """Exporta el reporte actual a PDF"""
+            from tkinter import filedialog
+            
+            if not hasattr(actualizar_reporte, 'stats_actual'):
+                messagebox.showwarning("Advertencia", "Primero genera el reporte")
+                return
+            
+            ruta = filedialog.asksaveasfilename(
+                defaultextension=".pdf",
+                filetypes=[("PDF files", "*.pdf"), ("All files", "*.*")],
+                initialfile=f"Reporte_{combo_mes.get()}_{combo_año.get()}.pdf"
+            )
+            
+            if ruta:
+                try:
+                    mes = combo_mes.current() + 1
+                    año = int(combo_año.get())
+                    db.exportar_reporte_pdf(actualizar_reporte.stats_actual, mes, año, ruta)
+                    messagebox.showinfo("Éxito", f"PDF exportado a:\n{ruta}")
+                except Exception as e:
+                    messagebox.showerror("Error", f"Error al exportar PDF:\n{e}")
+        
+        tk.Button(
+            frame_selector,
+            text="📄 Exportar PDF",
+            command=exportar_pdf,
+            bg="#27ae60",
+            fg="white",
+            font=("Arial", 10),
+            padx=15
+        ).pack(side=tk.LEFT, padx=5)
         
         # Frame con scroll para el reporte
         frame_scroll = tk.Frame(ventana_reporte)
@@ -745,8 +1021,8 @@ class AplicacionClinica:
         canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         
-        # Obtener estadísticas
-        stats = db.obtener_estadisticas_mensuales()
+        # Cargar reporte inicial
+        actualizar_reporte()
         
         # ===== SECCIÓN 1: INGRESOS DEL MES =====
         tk.Label(
@@ -909,15 +1185,6 @@ class AplicacionClinica:
                 ).pack(side=tk.RIGHT, padx=10)
                 
                 tk.Label(frame_pac, bg="#ecf0f1").pack(pady=3)
-        
-        else:
-            tk.Label(
-                frame_reporte,
-                text="No hay movimientos en el mes actual",
-                font=("Arial", 11),
-                bg="#f8f9fa",
-                fg="#95a5a6"
-            ).pack(pady=20)
     
     # ===== PESTAÑA DE SESIONES =====
     
@@ -1411,6 +1678,9 @@ class AplicacionClinica:
                 
                 # Guardar en BD
                 db.guardar_sesion(sesion)
+                
+                # Aplicar saldo a favor si existe
+                db.aplicar_saldo_a_favor_a_nueva_sesion(self.paciente_actual.id, sesion)
                 
                 # Actualizar deuda
                 db.actualizar_deuda_paciente(self.paciente_actual.id)

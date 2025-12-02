@@ -103,7 +103,8 @@ def guardar_paciente(paciente: Paciente) -> int:
             paciente.notas,
             paciente.fecha_creacion.isoformat()
         ))
-        paciente_id = cursor.lastrowid
+        paciente.id = cursor.lastrowid
+        paciente_id = paciente.id
     else:
         # Actualizar existente
         cursor.execute("""
@@ -123,6 +124,7 @@ def guardar_paciente(paciente: Paciente) -> int:
     
     conn.commit()
     conn.close()
+    return paciente_id
     return paciente_id
 
 
@@ -194,7 +196,8 @@ def guardar_sesion(sesion: Sesion) -> int:
             sesion.tipo.name,
             sesion.notas
         ))
-        sesion_id = cursor.lastrowid
+        sesion.id = cursor.lastrowid
+        sesion_id = sesion.id
     else:
         cursor.execute("""
             UPDATE sesiones 
@@ -213,6 +216,8 @@ def guardar_sesion(sesion: Sesion) -> int:
     
     conn.commit()
     conn.close()
+    
+    return sesion_id
     return sesion_id
 
 
@@ -316,7 +321,8 @@ def guardar_informe(informe: Informe) -> int:
             informe.notas,
             informe.fecha_creacion.isoformat()
         ))
-        informe_id = cursor.lastrowid
+        informe.id = cursor.lastrowid
+        informe_id = informe.id
     else:
         cursor.execute("""
             UPDATE informes 
@@ -496,9 +502,40 @@ def actualizar_deuda_paciente(paciente_id: int):
     guardar_paciente(paciente)
 
 
-def obtener_estadisticas_mensuales() -> dict:
+def aplicar_saldo_a_favor_a_nueva_sesion(paciente_id: int, sesion: Sesion):
     """
-    Obtiene estadísticas de facturación del mes actual.
+    Si el paciente tiene saldo a favor (deuda negativa), aplica automáticamente
+    a la nueva sesión. Si el saldo cubre toda la sesión, la marca como PAGA.
+    """
+    paciente = obtener_paciente(paciente_id)
+    
+    # Si no hay saldo a favor, no hacer nada
+    if paciente.deuda >= 0:
+        return
+    
+    saldo_a_favor = abs(paciente.deuda)
+    
+    # Si el saldo a favor cubre toda la sesión
+    if saldo_a_favor >= sesion.precio:
+        # Marcar sesión como PAGA y ajustar deuda
+        sesion.estado = EstadoSesion.PAGA
+        guardar_sesion(sesion)
+        
+        # Actualizar deuda: restar el precio de la sesión del saldo a favor
+        paciente.deuda = -(saldo_a_favor - sesion.precio)
+        guardar_paciente(paciente)
+    # Si el saldo a favor cubre parcialmente
+    elif saldo_a_favor > 0:
+        # La sesión queda como PENDIENTE pero la deuda se ajusta
+        # La parte del saldo se aplica, el resto queda pendiente
+        paciente.deuda = saldo_a_favor - sesion.precio
+        guardar_paciente(paciente)
+
+
+def obtener_estadisticas_mensuales(mes: int = None, año: int = None) -> dict:
+    """
+    Obtiene estadísticas de facturación de un mes específico.
+    Si no se especifica mes/año, usa el mes actual.
     Retorna un diccionario con:
     - total_cobrado: dinero total cobrado en el mes
     - desglose_cobrado: desglose por tipo de paciente
@@ -509,8 +546,8 @@ def obtener_estadisticas_mensuales() -> dict:
     from datetime import datetime as dt
     
     ahora = dt.now()
-    mes_actual = ahora.month
-    año_actual = ahora.year
+    mes_actual = mes if mes is not None else ahora.month
+    año_actual = año if año is not None else ahora.year
     
     stats = {
         "total_cobrado": 0,
@@ -633,3 +670,141 @@ def eliminar_informe(informe_id: int):
     
     conn.commit()
     conn.close()
+
+
+def exportar_reporte_pdf(stats: dict, mes: int, año: int, ruta_archivo: str):
+    """
+    Exporta el reporte mensual a un archivo PDF.
+    
+    Parámetros:
+    - stats: diccionario de estadísticas (retornado por obtener_estadisticas_mensuales)
+    - mes: número del mes (1-12)
+    - año: año del reporte
+    - ruta_archivo: ruta donde guardar el PDF
+    """
+    from reportlab.lib.pagesizes import letter, A4
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.units import inch
+    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak
+    from reportlab.lib import colors
+    from datetime import datetime as dt
+    
+    # Crear documento
+    doc = SimpleDocTemplate(ruta_archivo, pagesize=letter, topMargin=0.5*inch, bottomMargin=0.5*inch)
+    elements = []
+    styles = getSampleStyleSheet()
+    
+    # Estilo personalizado para título
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=18,
+        textColor=colors.HexColor('#2c3e50'),
+        spaceAfter=30,
+        alignment=1  # Centro
+    )
+    
+    heading_style = ParagraphStyle(
+        'CustomHeading',
+        parent=styles['Heading2'],
+        fontSize=13,
+        textColor=colors.HexColor('#27ae60'),
+        spaceBefore=12,
+        spaceAfter=6
+    )
+    
+    # Título
+    mes_nombre = dt(año, mes, 1).strftime("%B %Y")
+    elements.append(Paragraph(f"Reporte Mensual - {mes_nombre}", title_style))
+    elements.append(Spacer(1, 0.2*inch))
+    
+    # SECCIÓN 1: INGRESOS
+    elements.append(Paragraph("💰 INGRESOS DEL MES", heading_style))
+    
+    ingresos_data = [
+        ["Concepto", "Monto"],
+        ["Total cobrado", f"${stats['total_cobrado']:,.2f}"],
+        ["  • Pacientes Estándar", f"${stats['cobrado_estandar']:,.2f}"],
+        ["  • Pacientes Mensuales", f"${stats['cobrado_mensual']:,.2f}"],
+        ["  • Diagnósticos", f"${stats['cobrado_diagnostico']:,.2f}"],
+        ["Informes (por cobrar)", f"${stats['informes_total']:,.2f}"],
+    ]
+    
+    ingresos_table = Table(ingresos_data, colWidths=[4*inch, 2*inch])
+    ingresos_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#27ae60')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 11),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, 1), colors.HexColor('#d5f4e6')),
+        ('FONTNAME', (0, 1), (-1, 1), 'Helvetica-Bold'),
+        ('GRID', (0, 0), (-1, -1), 1, colors.grey),
+        ('ROWBACKGROUNDS', (0, 2), (-1, -1), [colors.white, colors.HexColor('#f0f0f0')]),
+    ]))
+    elements.append(ingresos_table)
+    elements.append(Spacer(1, 0.3*inch))
+    
+    # SECCIÓN 2: DEUDA
+    elements.append(Paragraph("📊 DEUDA ACUMULADA", heading_style))
+    
+    deuda_data = [
+        ["Concepto", "Monto"],
+        ["Total deuda", f"${stats['deuda_total']:,.2f}"],
+        ["  • Pacientes Estándar", f"${stats['deuda_estandar']:,.2f}"],
+        ["  • Pacientes Mensuales", f"${stats['deuda_mensual']:,.2f}"],
+        ["  • Diagnósticos", f"${stats['deuda_diagnostico']:,.2f}"],
+    ]
+    
+    deuda_table = Table(deuda_data, colWidths=[4*inch, 2*inch])
+    deuda_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#e74c3c')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 11),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, 1), colors.HexColor('#fadbd8')),
+        ('FONTNAME', (0, 1), (-1, 1), 'Helvetica-Bold'),
+        ('GRID', (0, 0), (-1, -1), 1, colors.grey),
+        ('ROWBACKGROUNDS', (0, 2), (-1, -1), [colors.white, colors.HexColor('#f0f0f0')]),
+    ]))
+    elements.append(deuda_table)
+    elements.append(Spacer(1, 0.3*inch))
+    
+    # SECCIÓN 3: DETALLE POR PACIENTE
+    if stats["detalle_pacientes"]:
+        elements.append(Paragraph("👥 RESUMEN POR PACIENTE", heading_style))
+        
+        detalle_data = [
+            ["Paciente", "Tipo", "Cobrado", "Deuda"],
+        ]
+        
+        for pac in stats["detalle_pacientes"]:
+            detalle_data.append([
+                pac["nombre"],
+                pac["tipo"],
+                f"${pac['cobrado']:,.2f}",
+                f"${pac['deuda']:,.2f}"
+            ])
+        
+        detalle_table = Table(detalle_data, colWidths=[2.5*inch, 1.5*inch, 1.2*inch, 1.2*inch])
+        detalle_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#2c3e50')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (0, -1), 'LEFT'),
+            ('ALIGN', (1, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('GRID', (0, 0), (-1, -1), 1, colors.grey),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f0f0f0')]),
+            ('FONTSIZE', (0, 1), (-1, -1), 9),
+        ]))
+        elements.append(detalle_table)
+    
+    # Construir PDF
+    doc.build(elements)
