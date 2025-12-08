@@ -33,25 +33,25 @@ class AplicacionClinica:
         """Crea la estructura principal de la interfaz"""
         
         # ===== BARRA SUPERIOR =====
-        frame_superior = tk.Frame(self.root, bg="#2c3e50", height=60)
+        frame_superior = tk.Frame(self.root, bg="#e0637e", height=60)
         frame_superior.pack(side=tk.TOP, fill=tk.X)
         frame_superior.pack_propagate(False)
         
         tk.Label(
             frame_superior, 
             text="Gestión de Clínica Psicológica",
-            bg="#2c3e50",
+            bg="#811e63",
             fg="white",
-            font=("Arial", 16, "bold")
+            font=("Tahoma", 18, "bold")
         ).pack(side=tk.LEFT, padx=20, pady=15)
         
         btn_nuevo_paciente = tk.Button(
             frame_superior,
             text="➕ Nuevo Paciente",
             command=self.abrir_dialogo_nuevo_paciente,
-            bg="#27ae60",
+            bg="#94eeba",
             fg="white",
-            font=("Arial", 10, "bold"),
+            font=("Tahoma", 14, "bold"),
             padx=15,
             pady=5,
             relief=tk.FLAT,
@@ -63,9 +63,9 @@ class AplicacionClinica:
             frame_superior,
             text="📊 Reporte Mensual",
             command=self.mostrar_reporte_mensual,
-            bg="#3498db",
+            bg="#95c7e9",
             fg="white",
-            font=("Arial", 10, "bold"),
+            font=("Tahoma", 14, "bold"),
             padx=15,
             pady=5,
             relief=tk.FLAT,
@@ -77,9 +77,9 @@ class AplicacionClinica:
             frame_superior,
             text="💾 Backups",
             command=self.mostrar_ventana_backups,
-            bg="#e74c3c",
+            bg="#ee8d82",
             fg="white",
-            font=("Arial", 10, "bold"),
+            font=("Tahoma", 14, "bold"),
             padx=15,
             pady=5,
             relief=tk.FLAT,
@@ -91,9 +91,9 @@ class AplicacionClinica:
             frame_superior,
             text="📥 Exportar",
             command=self.mostrar_ventana_exportar,
-            bg="#9b59b6",
+            bg="#dd99f8",
             fg="white",
-            font=("Arial", 10, "bold"),
+            font=("Tahoma", 14, "bold"),
             padx=15,
             pady=5,
             relief=tk.FLAT,
@@ -106,16 +106,16 @@ class AplicacionClinica:
         contenedor_principal.pack(fill=tk.BOTH, expand=True)
         
         # ===== PANEL IZQUIERDO: LISTA DE PACIENTES =====
-        frame_izquierdo = tk.Frame(contenedor_principal, bg="#ecf0f1", width=300)
+        frame_izquierdo = tk.Frame(contenedor_principal, bg="#ecf0f1", width=400)
         frame_izquierdo.pack(side=tk.LEFT, fill=tk.BOTH)
         frame_izquierdo.pack_propagate(False)
         
         tk.Label(
             frame_izquierdo,
             text="Pacientes",
-            bg="#34495e",
+            bg="#811e63",
             fg="white",
-            font=("Arial", 12, "bold"),
+            font=("Tahoma", 16, "bold"),
             pady=10
         ).pack(fill=tk.X)
         
@@ -123,7 +123,7 @@ class AplicacionClinica:
         frame_busqueda = tk.Frame(frame_izquierdo, bg="#ecf0f1")
         frame_busqueda.pack(fill=tk.X, padx=10, pady=10)
         
-        self.entry_busqueda = tk.Entry(frame_busqueda, font=("Arial", 10))
+        self.entry_busqueda = tk.Entry(frame_busqueda, font=("Tahoma", 14))
         self.entry_busqueda.pack(fill=tk.X)
         self.entry_busqueda.insert(0, "🔍 Buscar paciente...")
         self.entry_busqueda.bind("<FocusIn>", self.limpiar_placeholder_busqueda)
@@ -138,7 +138,7 @@ class AplicacionClinica:
         
         self.listbox_pacientes = tk.Listbox(
             frame_lista,
-            font=("Arial", 10),
+            font=("Tahoma", 14),
             yscrollcommand=scrollbar.set,
             selectmode=tk.SINGLE
         )
@@ -155,7 +155,7 @@ class AplicacionClinica:
         self.label_sin_seleccion = tk.Label(
             self.frame_derecho,
             text="← Selecciona un paciente de la lista",
-            font=("Arial", 14),
+            font=("Tahoma", 16),
             fg="#95a5a6"
         )
         self.label_sin_seleccion.pack(expand=True)
@@ -247,7 +247,7 @@ class AplicacionClinica:
         tk.Label(
             self.tab_datos,
             text=p.nombre,
-            font=("Arial", 18, "bold"),
+            font=("Tahoma", 18, "bold"),
             bg="white"
         ).pack(pady=15)
         
@@ -269,7 +269,7 @@ class AplicacionClinica:
             tk.Label(
                 frame_fila,
                 text=label,
-                font=("Arial", 10, "bold"),
+                font=("Tahoma", 14, "bold"),
                 bg="#ecf0f1",
                 fg="#2c3e50",
                 anchor="w",
@@ -279,7 +279,7 @@ class AplicacionClinica:
             tk.Label(
                 frame_fila,
                 text=valor,
-                font=("Arial", 10),
+                font=("Tahoma", 14),
                 bg="#ecf0f1",
                 fg="#34495e"
             ).pack(side=tk.RIGHT, padx=10)
@@ -292,7 +292,7 @@ class AplicacionClinica:
         tk.Label(
             deuda_frame,
             text="DEUDA ACTUAL",
-            font=("Arial", 11, "bold"),
+            font=("Tahoma", 15, "bold"),
             bg=deuda_color,
             fg="white"
         ).pack(pady=(5, 0))
@@ -301,7 +301,7 @@ class AplicacionClinica:
         tk.Label(
             deuda_frame,
             text=deuda_texto,
-            font=("Arial", 16, "bold"),
+            font=("Tahoma", 18, "bold"),
             bg=deuda_color,
             fg="white"
         ).pack(pady=(0, 10))
@@ -332,7 +332,7 @@ class AplicacionClinica:
             tk.Label(
                 frame_stat,
                 text=label,
-                font=("Arial", 10),
+                font=("Tahoma", 14),
                 bg="white",
                 fg="#7f8c8d",
                 anchor="w"
@@ -341,7 +341,7 @@ class AplicacionClinica:
             tk.Label(
                 frame_stat,
                 text=valor,
-                font=("Arial", 10, "bold"),
+                font=("Tahoma", 16, "bold"),
                 bg="white",
                 fg="#2c3e50"
             ).pack(side=tk.RIGHT)
@@ -351,7 +351,7 @@ class AplicacionClinica:
             tk.Label(
                 self.tab_datos,
                 text="Notas:",
-                font=("Arial", 10, "bold"),
+                font=("Tahoma", 14, "bold"),
                 bg="white"
             ).pack(pady=(15, 5), anchor="w", padx=30)
             
@@ -361,7 +361,7 @@ class AplicacionClinica:
             tk.Label(
                 notas_frame,
                 text=p.notas,
-                font=("Arial", 10),
+                font=("Tahoma", 14),
                 bg="#fffacd",
                 fg="#2c3e50",
                 wraplength=600,
@@ -378,7 +378,7 @@ class AplicacionClinica:
             command=self.editar_paciente_actual,
             bg="#3498db",
             fg="white",
-            font=("Arial", 10, "bold"),
+            font=("Tahoma", 14, "bold"),
             padx=20,
             pady=5
         ).pack(side=tk.LEFT, padx=5)
@@ -389,7 +389,7 @@ class AplicacionClinica:
             command=self.eliminar_paciente_actual,
             bg="#e74c3c",
             fg="white",
-            font=("Arial", 10, "bold"),
+            font=("Tahoma", 14, "bold"),
             padx=20,
             pady=5
         ).pack(side=tk.LEFT, padx=5)
@@ -418,7 +418,7 @@ class AplicacionClinica:
         tk.Label(
             dialogo,
             text="Crear Nuevo Paciente",
-            font=("Arial", 14, "bold")
+            font=("Tahoma", 16, "bold")
         ).pack(pady=20)
         
         # Frame para campos
@@ -426,43 +426,43 @@ class AplicacionClinica:
         frame_campos.pack(padx=30, pady=10, fill=tk.BOTH, expand=True)
         
         # Nombre
-        tk.Label(frame_campos, text="Nombre:", font=("Arial", 10, "bold")).grid(row=0, column=0, sticky="w", pady=10)
-        entry_nombre = tk.Entry(frame_campos, width=35, font=("Arial", 10))
+        tk.Label(frame_campos, text="Nombre:", font=("Tahoma", 14, "bold")).grid(row=0, column=0, sticky="w", pady=10)
+        entry_nombre = tk.Entry(frame_campos, width=35, font=("Tahoma", 14))
         entry_nombre.grid(row=0, column=1, sticky="w", pady=10)
         
         # Tipo de paciente
-        tk.Label(frame_campos, text="Tipo:", font=("Arial", 10, "bold")).grid(row=1, column=0, sticky="w", pady=10)
+        tk.Label(frame_campos, text="Tipo:", font=("Tahoma", 14, "bold")).grid(row=1, column=0, sticky="w", pady=10)
         combo_tipo = ttk.Combobox(frame_campos, width=33, state="readonly")
         combo_tipo['values'] = [tipo.value for tipo in TipoPaciente]
         combo_tipo.current(0)
         combo_tipo.grid(row=1, column=1, sticky="w", pady=10)
         
         # Costo por sesión
-        tk.Label(frame_campos, text="Costo por sesión:", font=("Arial", 10, "bold")).grid(row=2, column=0, sticky="w", pady=10)
-        entry_costo = tk.Entry(frame_campos, width=15, font=("Arial", 10))
+        tk.Label(frame_campos, text="Costo por sesión:", font=("Tahoma", 14, "bold")).grid(row=2, column=0, sticky="w", pady=10)
+        entry_costo = tk.Entry(frame_campos, width=15, font=("Tahoma", 14))
         entry_costo.insert(0, "0")
         entry_costo.grid(row=2, column=1, sticky="w", pady=10)
         
         # Arancel social
-        tk.Label(frame_campos, text="Arancel social:", font=("Arial", 10, "bold")).grid(row=3, column=0, sticky="w", pady=10)
+        tk.Label(frame_campos, text="Arancel social:", font=("Tahoma", 14, "bold")).grid(row=3, column=0, sticky="w", pady=10)
         var_arancel = tk.BooleanVar()
         check_arancel = tk.Checkbutton(
             frame_campos,
             variable=var_arancel,
-            font=("Arial", 10),
+            font=("Tahoma", 14),
             bg="white"
         )
         check_arancel.grid(row=3, column=1, sticky="w", pady=10)
         
         # Deuda inicial (opcional)
-        tk.Label(frame_campos, text="Deuda inicial (opcional):", font=("Arial", 10, "bold")).grid(row=4, column=0, sticky="w", pady=10)
-        entry_deuda = tk.Entry(frame_campos, width=15, font=("Arial", 10))
+        tk.Label(frame_campos, text="Deuda inicial (opcional):", font=("Tahoma", 14, "bold")).grid(row=4, column=0, sticky="w", pady=10)
+        entry_deuda = tk.Entry(frame_campos, width=15, font=("Tahoma", 14))
         entry_deuda.insert(0, "0")
         entry_deuda.grid(row=4, column=1, sticky="w", pady=10)
         
         # Notas
-        tk.Label(frame_campos, text="Notas:", font=("Arial", 10, "bold")).grid(row=5, column=0, sticky="nw", pady=10)
-        text_notas = tk.Text(frame_campos, width=35, height=5, font=("Arial", 10))
+        tk.Label(frame_campos, text="Notas:", font=("Tahoma", 14, "bold")).grid(row=5, column=0, sticky="nw", pady=10)
+        text_notas = tk.Text(frame_campos, width=35, height=5, font=("Tahoma", 14))
         text_notas.grid(row=5, column=1, sticky="w", pady=10)
         
         # Botones
@@ -541,7 +541,7 @@ class AplicacionClinica:
             command=guardar_paciente,
             bg="#27ae60",
             fg="white",
-            font=("Arial", 10, "bold"),
+            font=("Tahoma", 14, "bold"),
             padx=20,
             pady=5
         ).pack(side=tk.LEFT, padx=5)
@@ -552,7 +552,7 @@ class AplicacionClinica:
             command=dialogo.destroy,
             bg="#95a5a6",
             fg="white",
-            font=("Arial", 10, "bold"),
+            font=("Tahoma", 14, "bold"),
             padx=20,
             pady=5
         ).pack(side=tk.LEFT, padx=5)
@@ -576,7 +576,7 @@ class AplicacionClinica:
         tk.Label(
             dialogo,
             text="Editar Paciente",
-            font=("Arial", 14, "bold")
+            font=("Tahoma", 16, "bold")
         ).pack(pady=20)
         
         # Frame para campos
@@ -586,44 +586,44 @@ class AplicacionClinica:
         p = self.paciente_actual
         
         # Nombre
-        tk.Label(frame_campos, text="Nombre:", font=("Arial", 10, "bold")).grid(row=0, column=0, sticky="w", pady=10)
-        entry_nombre = tk.Entry(frame_campos, width=35, font=("Arial", 10))
+        tk.Label(frame_campos, text="Nombre:", font=("Tahoma", 14, "bold")).grid(row=0, column=0, sticky="w", pady=10)
+        entry_nombre = tk.Entry(frame_campos, width=35, font=("Tahoma", 14))
         entry_nombre.insert(0, p.nombre)
         entry_nombre.grid(row=0, column=1, sticky="w", pady=10)
         
         # Tipo de paciente
-        tk.Label(frame_campos, text="Tipo:", font=("Arial", 10, "bold")).grid(row=1, column=0, sticky="w", pady=10)
+        tk.Label(frame_campos, text="Tipo:", font=("Tahoma", 14, "bold")).grid(row=1, column=0, sticky="w", pady=10)
         combo_tipo = ttk.Combobox(frame_campos, width=33, state="readonly")
         combo_tipo['values'] = [tipo.value for tipo in TipoPaciente]
         combo_tipo.set(p.tipo.value)
         combo_tipo.grid(row=1, column=1, sticky="w", pady=10)
         
         # Costo por sesión
-        tk.Label(frame_campos, text="Costo por sesión:", font=("Arial", 10, "bold")).grid(row=2, column=0, sticky="w", pady=10)
-        entry_costo = tk.Entry(frame_campos, width=15, font=("Arial", 10))
+        tk.Label(frame_campos, text="Costo por sesión:", font=("Tahoma", 14, "bold")).grid(row=2, column=0, sticky="w", pady=10)
+        entry_costo = tk.Entry(frame_campos, width=15, font=("Tahoma", 14))
         entry_costo.insert(0, str(p.costo_sesion))
         entry_costo.grid(row=2, column=1, sticky="w", pady=10)
         
         # Arancel social
-        tk.Label(frame_campos, text="Arancel social:", font=("Arial", 10, "bold")).grid(row=3, column=0, sticky="w", pady=10)
+        tk.Label(frame_campos, text="Arancel social:", font=("Tahoma", 14, "bold")).grid(row=3, column=0, sticky="w", pady=10)
         var_arancel = tk.BooleanVar(value=p.arancel_social)
         check_arancel = tk.Checkbutton(
             frame_campos,
             variable=var_arancel,
-            font=("Arial", 10),
+            font=("Tahoma", 14),
             bg="white"
         )
         check_arancel.grid(row=3, column=1, sticky="w", pady=10)
         
         # Deuda actual (editable)
-        tk.Label(frame_campos, text="Deuda:", font=("Arial", 10, "bold")).grid(row=4, column=0, sticky="w", pady=10)
-        entry_deuda = tk.Entry(frame_campos, width=15, font=("Arial", 10))
+        tk.Label(frame_campos, text="Deuda:", font=("Tahoma", 14, "bold")).grid(row=4, column=0, sticky="w", pady=10)
+        entry_deuda = tk.Entry(frame_campos, width=15, font=("Tahoma", 14))
         entry_deuda.insert(0, str(p.deuda))
         entry_deuda.grid(row=4, column=1, sticky="w", pady=10)
         
         # Notas
-        tk.Label(frame_campos, text="Notas:", font=("Arial", 10, "bold")).grid(row=5, column=0, sticky="nw", pady=10)
-        text_notas = tk.Text(frame_campos, width=35, height=5, font=("Arial", 10))
+        tk.Label(frame_campos, text="Notas:", font=("Tahoma", 14, "bold")).grid(row=5, column=0, sticky="nw", pady=10)
+        text_notas = tk.Text(frame_campos, width=35, height=5, font=("Tahoma", 14))
         text_notas.insert("1.0", p.notas if p.notas else "")
         text_notas.grid(row=5, column=1, sticky="w", pady=10)
         
@@ -698,7 +698,7 @@ class AplicacionClinica:
             command=guardar_cambios,
             bg="#27ae60",
             fg="white",
-            font=("Arial", 10, "bold"),
+            font=("Tahoma", 14, "bold"),
             padx=20,
             pady=5
         ).pack(side=tk.LEFT, padx=5)
@@ -709,7 +709,7 @@ class AplicacionClinica:
             command=dialogo.destroy,
             bg="#95a5a6",
             fg="white",
-            font=("Arial", 10, "bold"),
+            font=("Tahoma", 14, "bold"),
             padx=20,
             pady=5
         ).pack(side=tk.LEFT, padx=5)
@@ -752,7 +752,7 @@ class AplicacionClinica:
         tk.Label(
             ventana_reporte,
             text="Reporte Mensual de Clínica",
-            font=("Arial", 16, "bold"),
+            font=("Tahoma", 18, "bold"),
             fg="#2c3e50"
         ).pack(pady=10)
         
@@ -763,7 +763,7 @@ class AplicacionClinica:
         tk.Label(
             frame_selector,
             text="Seleccionar mes:",
-            font=("Arial", 10),
+            font=("Tahoma", 14),
             bg="#ecf0f1"
         ).pack(side=tk.LEFT, padx=10, pady=10)
         
@@ -776,7 +776,7 @@ class AplicacionClinica:
             values=meses,
             state="readonly",
             width=15,
-            font=("Arial", 10)
+            font=("Tahoma", 14)
         )
         combo_mes.set(meses[ahora.month - 1])
         combo_mes.pack(side=tk.LEFT, padx=5)
@@ -784,7 +784,7 @@ class AplicacionClinica:
         tk.Label(
             frame_selector,
             text="Año:",
-            font=("Arial", 10),
+            font=("Tahoma", 14),
             bg="#ecf0f1"
         ).pack(side=tk.LEFT, padx=(20, 5))
         
@@ -794,7 +794,7 @@ class AplicacionClinica:
             values=años,
             state="readonly",
             width=10,
-            font=("Arial", 10)
+            font=("Tahoma", 14)
         )
         combo_año.set(str(ahora.year))
         combo_año.pack(side=tk.LEFT, padx=5)
@@ -815,7 +815,7 @@ class AplicacionClinica:
             tk.Label(
                 frame_reporte,
                 text="💰 INGRESOS DEL MES",
-                font=("Arial", 12, "bold"),
+                font=("Tahoma", 16, "bold"),
                 bg="#f8f9fa",
                 fg="#27ae60"
             ).pack(pady=(15, 10), anchor="w", padx=20)
@@ -839,7 +839,7 @@ class AplicacionClinica:
                 tk.Label(
                     frame_fila,
                     text=label,
-                    font=("Arial", 10),
+                    font=("Tahoma", 14),
                     bg="white",
                     fg="#2c3e50",
                     anchor="w",
@@ -849,7 +849,7 @@ class AplicacionClinica:
                 tk.Label(
                     frame_fila,
                     text=valor,
-                    font=("Arial", 10, "bold"),
+                    font=("Tahoma", 14, "bold"),
                     bg="white",
                     fg=color
                 ).pack(side=tk.RIGHT, padx=10)
@@ -861,7 +861,7 @@ class AplicacionClinica:
             tk.Label(
                 frame_reporte,
                 text="📊 DEUDA ACUMULADA",
-                font=("Arial", 12, "bold"),
+                font=("Tahoma", 16, "bold"),
                 bg="#f8f9fa",
                 fg="#e74c3c"
             ).pack(pady=(15, 10), anchor="w", padx=20)
@@ -884,7 +884,7 @@ class AplicacionClinica:
                 tk.Label(
                     frame_fila,
                     text=label,
-                    font=("Arial", 10),
+                    font=("Tahoma", 14),
                     bg="white",
                     fg="#2c3e50",
                     anchor="w",
@@ -894,7 +894,7 @@ class AplicacionClinica:
                 tk.Label(
                     frame_fila,
                     text=valor,
-                    font=("Arial", 10, "bold"),
+                    font=("Tahoma", 14, "bold"),
                     bg="white",
                     fg=color
                 ).pack(side=tk.RIGHT, padx=10)
@@ -907,7 +907,7 @@ class AplicacionClinica:
                 tk.Label(
                     frame_reporte,
                     text="👥 RESUMEN POR PACIENTE",
-                    font=("Arial", 12, "bold"),
+                    font=("Tahoma", 16, "bold"),
                     bg="#f8f9fa",
                     fg="#2c3e50"
                 ).pack(pady=(15, 10), anchor="w", padx=20)
@@ -923,7 +923,7 @@ class AplicacionClinica:
                     tk.Label(
                         frame_header,
                         text=pac["nombre"],
-                        font=("Arial", 10, "bold"),
+                        font=("Tahoma", 14, "bold"),
                         bg="#ecf0f1",
                         fg="#2c3e50"
                     ).pack(side=tk.LEFT)
@@ -937,7 +937,7 @@ class AplicacionClinica:
                     tk.Label(
                         frame_header,
                         text=f"({pac['tipo']})",
-                        font=("Arial", 9),
+                        font=("Tahoma", 13),
                         bg="#ecf0f1",
                         fg=tipo_color
                     ).pack(side=tk.LEFT, padx=5)
@@ -946,7 +946,7 @@ class AplicacionClinica:
                         tk.Label(
                             frame_header,
                             text="🏥 Arancel Social",
-                            font=("Arial", 8),
+                            font=("Tahoma", 12),
                             bg="#ecf0f1",
                             fg="#f39c12"
                         ).pack(side=tk.LEFT, padx=5)
@@ -958,7 +958,7 @@ class AplicacionClinica:
                     tk.Label(
                         frame_datos,
                         text=f"Cobrado: ${pac['cobrado']:,.2f}",
-                        font=("Arial", 9),
+                        font=("Tahoma", 13),
                         bg="#ecf0f1",
                         fg="#27ae60"
                     ).pack(side=tk.LEFT)
@@ -966,7 +966,7 @@ class AplicacionClinica:
                     tk.Label(
                         frame_datos,
                         text=f"Deuda: ${pac['deuda']:,.2f}",
-                        font=("Arial", 9),
+                        font=("Tahoma", 12),
                         bg="#ecf0f1",
                         fg="#e74c3c"
                     ).pack(side=tk.RIGHT, padx=10)
@@ -977,7 +977,7 @@ class AplicacionClinica:
                 tk.Label(
                     frame_reporte,
                     text="No hay movimientos en el mes seleccionado",
-                    font=("Arial", 11),
+                    font=("Tahoma", 15),
                     bg="#f8f9fa",
                     fg="#95a5a6"
                 ).pack(pady=20)
@@ -992,7 +992,7 @@ class AplicacionClinica:
             command=actualizar_reporte,
             bg="#3498db",
             fg="white",
-            font=("Arial", 10),
+            font=("Tahoma", 14),
             padx=15
         ).pack(side=tk.LEFT, padx=20)
         
@@ -1026,7 +1026,7 @@ class AplicacionClinica:
             command=exportar_pdf,
             bg="#27ae60",
             fg="white",
-            font=("Arial", 10),
+            font=("Tahoma", 14),
             padx=15
         ).pack(side=tk.LEFT, padx=5)
         
@@ -1056,7 +1056,7 @@ class AplicacionClinica:
         tk.Label(
             frame_reporte,
             text="💰 INGRESOS DEL MES",
-            font=("Arial", 12, "bold"),
+            font=("Tahoma", 16, "bold"),
             bg="#f8f9fa",
             fg="#27ae60"
         ).pack(pady=(15, 10), anchor="w", padx=20)
@@ -1080,7 +1080,7 @@ class AplicacionClinica:
             tk.Label(
                 frame_fila,
                 text=label,
-                font=("Arial", 10),
+                font=("Tahoma", 14),
                 bg="white",
                 fg="#2c3e50",
                 anchor="w",
@@ -1090,7 +1090,7 @@ class AplicacionClinica:
             tk.Label(
                 frame_fila,
                 text=valor,
-                font=("Arial", 10, "bold"),
+                font=("Tahoma", 14, "bold"),
                 bg="white",
                 fg=color
             ).pack(side=tk.RIGHT, padx=10)
@@ -1102,7 +1102,7 @@ class AplicacionClinica:
         tk.Label(
             frame_reporte,
             text="📊 DEUDA ACUMULADA",
-            font=("Arial", 12, "bold"),
+            font=("Tahoma", 16, "bold"),
             bg="#f8f9fa",
             fg="#e74c3c"
         ).pack(pady=(15, 10), anchor="w", padx=20)
@@ -1125,7 +1125,7 @@ class AplicacionClinica:
             tk.Label(
                 frame_fila,
                 text=label,
-                font=("Arial", 10),
+                font=("Tahoma", 14),
                 bg="white",
                 fg="#2c3e50",
                 anchor="w",
@@ -1135,7 +1135,7 @@ class AplicacionClinica:
             tk.Label(
                 frame_fila,
                 text=valor,
-                font=("Arial", 10, "bold"),
+                font=("Tahoma", 14, "bold"),
                 bg="white",
                 fg=color
             ).pack(side=tk.RIGHT, padx=10)
@@ -1148,7 +1148,7 @@ class AplicacionClinica:
             tk.Label(
                 frame_reporte,
                 text="👥 RESUMEN POR PACIENTE",
-                font=("Arial", 12, "bold"),
+                font=("Tahoma", 16, "bold"),
                 bg="#f8f9fa",
                 fg="#2c3e50"
             ).pack(pady=(15, 10), anchor="w", padx=20)
@@ -1164,7 +1164,7 @@ class AplicacionClinica:
                 tk.Label(
                     frame_header,
                     text=pac["nombre"],
-                    font=("Arial", 10, "bold"),
+                    font=("Tahoma", 14, "bold"),
                     bg="#ecf0f1",
                     fg="#2c3e50"
                 ).pack(side=tk.LEFT)
@@ -1178,7 +1178,7 @@ class AplicacionClinica:
                 tk.Label(
                     frame_header,
                     text=f"({pac['tipo']})",
-                    font=("Arial", 9),
+                    font=("Tahoma", 13),
                     bg="#ecf0f1",
                     fg=tipo_color
                 ).pack(side=tk.LEFT, padx=5)
@@ -1187,7 +1187,7 @@ class AplicacionClinica:
                     tk.Label(
                         frame_header,
                         text="🏥 Arancel Social",
-                        font=("Arial", 8),
+                        font=("Tahoma", 12),
                         bg="#ecf0f1",
                         fg="#f39c12"
                     ).pack(side=tk.LEFT, padx=5)
@@ -1199,7 +1199,7 @@ class AplicacionClinica:
                 tk.Label(
                     frame_datos,
                     text=f"Cobrado: ${pac['cobrado']:,.2f}",
-                    font=("Arial", 9),
+                    font=("Tahoma", 13),
                     bg="#ecf0f1",
                     fg="#27ae60"
                 ).pack(side=tk.LEFT)
@@ -1207,7 +1207,7 @@ class AplicacionClinica:
                 tk.Label(
                     frame_datos,
                     text=f"Deuda: ${pac['deuda']:,.2f}",
-                    font=("Arial", 9),
+                    font=("Tahoma", 13),
                     bg="#ecf0f1",
                     fg="#e74c3c"
                 ).pack(side=tk.RIGHT, padx=10)
@@ -1232,7 +1232,7 @@ class AplicacionClinica:
         tk.Label(
             frame_superior,
             text="Sesiones",
-            font=("Arial", 16, "bold"),
+            font=("Tahoma", 18, "bold"),
             bg="white"
         ).pack(side=tk.LEFT)
         
@@ -1242,7 +1242,7 @@ class AplicacionClinica:
             command=self.abrir_dialogo_nueva_sesion,
             bg="#27ae60",
             fg="white",
-            font=("Arial", 10, "bold"),
+            font=("Tahoma", 14, "bold"),
             padx=15,
             pady=5
         ).pack(side=tk.RIGHT)
@@ -1254,7 +1254,7 @@ class AplicacionClinica:
             tk.Label(
                 self.tab_sesiones,
                 text="No hay sesiones registradas",
-                font=("Arial", 12),
+                font=("Tahoma", 16),
                 fg="#95a5a6",
                 bg="white"
             ).pack(expand=True)
@@ -1309,7 +1309,7 @@ class AplicacionClinica:
         tk.Label(
             frame_fila1,
             text=sesion.fecha.strftime("%d/%m/%Y"),
-            font=("Arial", 12, "bold"),
+            font=("Tahoma", 16, "bold"),
             bg="white"
         ).pack(side=tk.LEFT)
         
@@ -1319,7 +1319,7 @@ class AplicacionClinica:
         tk.Label(
             frame_fila1,
             text=estado_texto,
-            font=("Arial", 10, "bold"),
+            font=("Tahoma", 14, "bold"),
             bg="white",
             fg=estado_color
         ).pack(side=tk.RIGHT)
@@ -1331,7 +1331,7 @@ class AplicacionClinica:
         tk.Label(
             frame_fila2,
             text=f"Tipo: {sesion.tipo.value}",
-            font=("Arial", 10),
+            font=("Tahoma", 14),
             bg="white",
             fg="#7f8c8d"
         ).pack(side=tk.LEFT)
@@ -1339,7 +1339,7 @@ class AplicacionClinica:
         tk.Label(
             frame_fila2,
             text=f"${sesion.precio:,.0f}",
-            font=("Arial", 11, "bold"),
+            font=("Tahoma", 15, "bold"),
             bg="white"
         ).pack(side=tk.RIGHT)
         
@@ -1348,7 +1348,7 @@ class AplicacionClinica:
             tk.Label(
                 frame_contenido,
                 text=f"Notas: {sesion.notas}",
-                font=("Arial", 9),
+                font=("Tahoma", 13),
                 bg="white",
                 fg="#95a5a6",
                 wraplength=600,
@@ -1366,7 +1366,7 @@ class AplicacionClinica:
                 command=lambda s=sesion: self.marcar_sesion_paga(s),
                 bg="#27ae60",
                 fg="white",
-                font=("Arial", 9),
+                font=("Tahoma", 13),
                 padx=10,
                 pady=3
             ).pack(side=tk.LEFT, padx=(0, 5))
@@ -1377,7 +1377,7 @@ class AplicacionClinica:
             command=lambda s=sesion: self.editar_sesion(s),
             bg="#3498db",
             fg="white",
-            font=("Arial", 9),
+            font=("Tahoma", 13),
             padx=10,
             pady=3
         ).pack(side=tk.LEFT, padx=5)
@@ -1388,7 +1388,7 @@ class AplicacionClinica:
             command=lambda s=sesion: self.eliminar_sesion(s),
             bg="#e74c3c",
             fg="white",
-            font=("Arial", 9),
+            font=("Tahoma", 13),
             padx=10,
             pady=3
         ).pack(side=tk.LEFT, padx=5)
@@ -1473,7 +1473,7 @@ class AplicacionClinica:
         tk.Label(
             dialogo,
             text="Editar Sesión",
-            font=("Arial", 14, "bold")
+            font=("Tahoma", 16, "bold")
         ).pack(pady=20)
         
         # Frame para campos
@@ -1481,47 +1481,47 @@ class AplicacionClinica:
         frame_campos.pack(padx=30, pady=10, fill=tk.BOTH, expand=True)
         
         # Fecha
-        tk.Label(frame_campos, text="Fecha:", font=("Arial", 10, "bold")).grid(row=0, column=0, sticky="w", pady=10)
+        tk.Label(frame_campos, text="Fecha:", font=("Tahoma", 14, "bold")).grid(row=0, column=0, sticky="w", pady=10)
         frame_fecha = tk.Frame(frame_campos)
         frame_fecha.grid(row=0, column=1, sticky="w", pady=10)
         
-        entry_dia = tk.Entry(frame_fecha, width=5, font=("Arial", 10))
+        entry_dia = tk.Entry(frame_fecha, width=5, font=("Tahoma", 14))
         entry_dia.insert(0, sesion.fecha.strftime("%d"))
         entry_dia.pack(side=tk.LEFT)
         tk.Label(frame_fecha, text="/").pack(side=tk.LEFT)
         
-        entry_mes = tk.Entry(frame_fecha, width=5, font=("Arial", 10))
+        entry_mes = tk.Entry(frame_fecha, width=5, font=("Tahoma", 14))
         entry_mes.insert(0, sesion.fecha.strftime("%m"))
         entry_mes.pack(side=tk.LEFT)
         tk.Label(frame_fecha, text="/").pack(side=tk.LEFT)
         
-        entry_año = tk.Entry(frame_fecha, width=8, font=("Arial", 10))
+        entry_año = tk.Entry(frame_fecha, width=8, font=("Tahoma", 14))
         entry_año.insert(0, sesion.fecha.strftime("%Y"))
         entry_año.pack(side=tk.LEFT)
         
         # Tipo de sesión
-        tk.Label(frame_campos, text="Tipo:", font=("Arial", 10, "bold")).grid(row=1, column=0, sticky="w", pady=10)
+        tk.Label(frame_campos, text="Tipo:", font=("Tahoma", 14, "bold")).grid(row=1, column=0, sticky="w", pady=10)
         combo_tipo = ttk.Combobox(frame_campos, width=25, state="readonly")
         combo_tipo['values'] = [tipo.value for tipo in TipoSesion]
         combo_tipo.set(sesion.tipo.value)
         combo_tipo.grid(row=1, column=1, sticky="w", pady=10)
         
         # Precio
-        tk.Label(frame_campos, text="Precio:", font=("Arial", 10, "bold")).grid(row=2, column=0, sticky="w", pady=10)
-        entry_precio = tk.Entry(frame_campos, width=15, font=("Arial", 10))
+        tk.Label(frame_campos, text="Precio:", font=("Tahoma", 14, "bold")).grid(row=2, column=0, sticky="w", pady=10)
+        entry_precio = tk.Entry(frame_campos, width=15, font=("Tahoma", 14))
         entry_precio.insert(0, str(int(sesion.precio)))
         entry_precio.grid(row=2, column=1, sticky="w", pady=10)
         
         # Estado
-        tk.Label(frame_campos, text="Estado:", font=("Arial", 10, "bold")).grid(row=3, column=0, sticky="w", pady=10)
+        tk.Label(frame_campos, text="Estado:", font=("Tahoma", 14, "bold")).grid(row=3, column=0, sticky="w", pady=10)
         combo_estado = ttk.Combobox(frame_campos, width=15, state="readonly")
         combo_estado['values'] = [estado.value for estado in EstadoSesion]
         combo_estado.set(sesion.estado.value)
         combo_estado.grid(row=3, column=1, sticky="w", pady=10)
         
         # Notas
-        tk.Label(frame_campos, text="Notas:", font=("Arial", 10, "bold")).grid(row=4, column=0, sticky="nw", pady=10)
-        text_notas = tk.Text(frame_campos, width=30, height=5, font=("Arial", 10))
+        tk.Label(frame_campos, text="Notas:", font=("Tahoma", 14, "bold")).grid(row=4, column=0, sticky="nw", pady=10)
+        text_notas = tk.Text(frame_campos, width=30, height=5, font=("Tahoma", 14))
         text_notas.insert("1.0", sesion.notas if sesion.notas else "")
         text_notas.grid(row=4, column=1, sticky="w", pady=10)
         
@@ -1581,7 +1581,7 @@ class AplicacionClinica:
             command=guardar_cambios,
             bg="#27ae60",
             fg="white",
-            font=("Arial", 10, "bold"),
+            font=("Tahoma", 14, "bold"),
             padx=20,
             pady=5
         ).pack(side=tk.LEFT, padx=5)
@@ -1592,7 +1592,7 @@ class AplicacionClinica:
             command=dialogo.destroy,
             bg="#95a5a6",
             fg="white",
-            font=("Arial", 10, "bold"),
+            font=("Tahoma", 14, "bold"),
             padx=20,
             pady=5
         ).pack(side=tk.LEFT, padx=5)
@@ -1616,7 +1616,7 @@ class AplicacionClinica:
         tk.Label(
             dialogo,
             text=f"Nueva sesión para {self.paciente_actual.nombre}",
-            font=("Arial", 14, "bold")
+            font=("Tahoma", 16, "bold")
         ).pack(pady=20)
         
         # Frame para campos
@@ -1624,47 +1624,47 @@ class AplicacionClinica:
         frame_campos.pack(padx=30, pady=10, fill=tk.BOTH, expand=True)
         
         # Fecha
-        tk.Label(frame_campos, text="Fecha:", font=("Arial", 10, "bold")).grid(row=0, column=0, sticky="w", pady=10)
+        tk.Label(frame_campos, text="Fecha:", font=("Tahoma", 14, "bold")).grid(row=0, column=0, sticky="w", pady=10)
         frame_fecha = tk.Frame(frame_campos)
         frame_fecha.grid(row=0, column=1, sticky="w", pady=10)
         
-        entry_dia = tk.Entry(frame_fecha, width=5, font=("Arial", 10))
+        entry_dia = tk.Entry(frame_fecha, width=5, font=("Tahoma", 14))
         entry_dia.insert(0, datetime.now().strftime("%d"))
         entry_dia.pack(side=tk.LEFT)
         tk.Label(frame_fecha, text="/").pack(side=tk.LEFT)
         
-        entry_mes = tk.Entry(frame_fecha, width=5, font=("Arial", 10))
+        entry_mes = tk.Entry(frame_fecha, width=5, font=("Tahoma", 14))
         entry_mes.insert(0, datetime.now().strftime("%m"))
         entry_mes.pack(side=tk.LEFT)
         tk.Label(frame_fecha, text="/").pack(side=tk.LEFT)
         
-        entry_año = tk.Entry(frame_fecha, width=8, font=("Arial", 10))
+        entry_año = tk.Entry(frame_fecha, width=8, font=("Tahoma", 14))
         entry_año.insert(0, datetime.now().strftime("%Y"))
         entry_año.pack(side=tk.LEFT)
         
         # Tipo de sesión
-        tk.Label(frame_campos, text="Tipo:", font=("Arial", 10, "bold")).grid(row=1, column=0, sticky="w", pady=10)
+        tk.Label(frame_campos, text="Tipo:", font=("Tahoma", 14, "bold")).grid(row=1, column=0, sticky="w", pady=10)
         combo_tipo = ttk.Combobox(frame_campos, width=25, state="readonly")
         combo_tipo['values'] = [tipo.value for tipo in TipoSesion]
         combo_tipo.current(0)
         combo_tipo.grid(row=1, column=1, sticky="w", pady=10)
         
         # Precio
-        tk.Label(frame_campos, text="Precio:", font=("Arial", 10, "bold")).grid(row=2, column=0, sticky="w", pady=10)
-        entry_precio = tk.Entry(frame_campos, width=15, font=("Arial", 10))
+        tk.Label(frame_campos, text="Precio:", font=("Tahoma", 14, "bold")).grid(row=2, column=0, sticky="w", pady=10)
+        entry_precio = tk.Entry(frame_campos, width=15, font=("Tahoma", 14))
         entry_precio.insert(0, str(int(self.paciente_actual.costo_sesion)))
         entry_precio.grid(row=2, column=1, sticky="w", pady=10)
         
         # Estado
-        tk.Label(frame_campos, text="Estado:", font=("Arial", 10, "bold")).grid(row=3, column=0, sticky="w", pady=10)
+        tk.Label(frame_campos, text="Estado:", font=("Tahoma", 14, "bold")).grid(row=3, column=0, sticky="w", pady=10)
         combo_estado = ttk.Combobox(frame_campos, width=15, state="readonly")
         combo_estado['values'] = [estado.value for estado in EstadoSesion]
         combo_estado.current(1)  # Por defecto PENDIENTE
         combo_estado.grid(row=3, column=1, sticky="w", pady=10)
         
         # Notas
-        tk.Label(frame_campos, text="Notas:", font=("Arial", 10, "bold")).grid(row=4, column=0, sticky="nw", pady=10)
-        text_notas = tk.Text(frame_campos, width=30, height=5, font=("Arial", 10))
+        tk.Label(frame_campos, text="Notas:", font=("Tahoma", 14, "bold")).grid(row=4, column=0, sticky="nw", pady=10)
+        text_notas = tk.Text(frame_campos, width=30, height=5, font=("Tahoma", 14))
         text_notas.grid(row=4, column=1, sticky="w", pady=10)
         
         # Botones
@@ -1732,7 +1732,7 @@ class AplicacionClinica:
             command=guardar_sesion,
             bg="#27ae60",
             fg="white",
-            font=("Arial", 10, "bold"),
+            font=("Tahoma", 14, "bold"),
             padx=20,
             pady=5
         ).pack(side=tk.LEFT, padx=5)
@@ -1743,7 +1743,7 @@ class AplicacionClinica:
             command=dialogo.destroy,
             bg="#95a5a6",
             fg="white",
-            font=("Arial", 10, "bold"),
+            font=("Tahoma", 14, "bold"),
             padx=20,
             pady=5
         ).pack(side=tk.LEFT, padx=5)
@@ -1766,7 +1766,7 @@ class AplicacionClinica:
         tk.Label(
             frame_superior,
             text="Pagos",
-            font=("Arial", 16, "bold"),
+            font=("Tahoma", 18, "bold"),
             bg="white"
         ).pack(side=tk.LEFT)
         
@@ -1776,7 +1776,7 @@ class AplicacionClinica:
             command=self.abrir_dialogo_nuevo_pago,
             bg="#27ae60",
             fg="white",
-            font=("Arial", 10, "bold"),
+            font=("Tahoma", 14, "bold"),
             padx=15,
             pady=5
         ).pack(side=tk.RIGHT)
@@ -1788,7 +1788,7 @@ class AplicacionClinica:
             tk.Label(
                 self.tab_pagos,
                 text="No hay pagos registrados",
-                font=("Arial", 12),
+                font=("Tahoma", 16),
                 fg="#95a5a6",
                 bg="white"
             ).pack(expand=True)
@@ -1840,14 +1840,14 @@ class AplicacionClinica:
         tk.Label(
             frame_fila1,
             text=pago.fecha.strftime("%d/%m/%Y"),
-            font=("Arial", 12, "bold"),
+            font=("Tahoma", 16, "bold"),
             bg="white"
         ).pack(side=tk.LEFT)
         
         tk.Label(
             frame_fila1,
             text=f"${pago.monto:,.0f}",
-            font=("Arial", 11, "bold"),
+            font=("Tahoma", 15, "bold"),
             bg="white"
         ).pack(side=tk.RIGHT)
         
@@ -1855,7 +1855,7 @@ class AplicacionClinica:
         tk.Label(
             frame_contenido,
             text=f"Concepto: {pago.concepto.value}",
-            font=("Arial", 10),
+            font=("Tahoma", 14),
             bg="white",
             fg="#7f8c8d"
         ).pack(anchor=tk.W, pady=(5, 0))
@@ -1865,7 +1865,7 @@ class AplicacionClinica:
             tk.Label(
                 frame_contenido,
                 text=f"Notas: {pago.notas}",
-                font=("Arial", 9),
+                font=("Tahoma", 13),
                 bg="white",
                 fg="#95a5a6",
                 wraplength=600,
@@ -1882,7 +1882,7 @@ class AplicacionClinica:
             command=lambda p=pago: self.eliminar_pago(p),
             bg="#e74c3c",
             fg="white",
-            font=("Arial", 9),
+            font=("Tahoma", 13),
             padx=10,
             pady=3
         ).pack(side=tk.LEFT, padx=(0, 5))
@@ -1906,7 +1906,7 @@ class AplicacionClinica:
         tk.Label(
             frame_superior,
             text="Informes",
-            font=("Arial", 16, "bold"),
+            font=("Tahoma", 18, "bold"),
             bg="white"
         ).pack(side=tk.LEFT)
         
@@ -1916,7 +1916,7 @@ class AplicacionClinica:
             command=self.abrir_dialogo_nuevo_informe,
             bg="#27ae60",
             fg="white",
-            font=("Arial", 10, "bold"),
+            font=("Tahoma", 14, "bold"),
             padx=15,
             pady=5
         ).pack(side=tk.RIGHT)
@@ -1928,7 +1928,7 @@ class AplicacionClinica:
             tk.Label(
                 self.tab_informes,
                 text="No hay informes registrados",
-                font=("Arial", 12),
+                font=("Tahoma", 16),
                 fg="#95a5a6",
                 bg="white"
             ).pack(expand=True)
@@ -1982,7 +1982,7 @@ class AplicacionClinica:
         tk.Label(
             frame_fila1,
             text=informe.tipo.value,
-            font=("Arial", 12, "bold"),
+            font=("Tahoma", 16, "bold"),
             bg="white"
         ).pack(side=tk.LEFT)
         
@@ -1991,7 +1991,7 @@ class AplicacionClinica:
         tk.Label(
             frame_fila1,
             text=estado_texto,
-            font=("Arial", 10, "bold"),
+            font=("Tahoma", 14, "bold"),
             bg="white",
             fg="#7f8c8d"
         ).pack(side=tk.RIGHT)
@@ -2003,14 +2003,14 @@ class AplicacionClinica:
         tk.Label(
             frame_fila2,
             text=f"Precio: ${informe.precio:,.0f}",
-            font=("Arial", 11),
+            font=("Tahoma", 15),
             bg="white"
         ).pack(side=tk.LEFT)
         
         tk.Label(
             frame_fila2,
             text=f"Pagado: ${informe.monto_pagado:,.0f}",
-            font=("Arial", 11),
+            font=("Tahoma", 15),
             bg="white"
         ).pack(side=tk.RIGHT)
         
@@ -2019,7 +2019,7 @@ class AplicacionClinica:
             tk.Label(
                 frame_contenido,
                 text=f"Notas: {informe.notas}",
-                font=("Arial", 9),
+                font=("Tahoma", 13),
                 bg="white",
                 fg  ="#95a5a6",
                 wraplength=600,
@@ -2036,7 +2036,7 @@ class AplicacionClinica:
                 command=lambda i=informe: self.marcar_informe_pagado(i),
                 bg="#27ae60",
                 fg="white",
-                font=("Arial", 9),
+                font=("Tahoma", 13),
                 padx=10,
                 pady=3
             ).pack(side=tk.LEFT, padx=(0, 5))
@@ -2046,7 +2046,7 @@ class AplicacionClinica:
             command=lambda i=informe: self.editar_informe(i),
             bg="#3498db",
             fg="white",
-            font=("Arial", 9),
+            font=("Tahoma", 13),
             padx=10,
             pady=3
         ).pack(side=tk.LEFT, padx=5)
@@ -2056,7 +2056,7 @@ class AplicacionClinica:
             command=lambda i=informe: self.eliminar_informe(i),
             bg="#e74c3c",
             fg="white",
-            font=("Arial", 9),
+            font=("Tahoma", 13),
             padx=10,
             pady=3
         ).pack(side=tk.LEFT, padx=5)
@@ -2116,7 +2116,7 @@ class AplicacionClinica:
         tk.Label(
             dialogo,
             text="Editar Informe",
-            font=("Arial", 14, "bold")
+            font=("Tahoma", 16, "bold")
         ).pack(pady=20)
         
         # Frame para campos
@@ -2124,41 +2124,41 @@ class AplicacionClinica:
         frame_campos.pack(padx=30, pady=10, fill=tk.BOTH, expand=True)
         
         # Tipo de informe
-        tk.Label(frame_campos, text="Tipo:", font=("Arial", 10, "bold")).grid(row=0, column=0, sticky="w", pady=10)
+        tk.Label(frame_campos, text="Tipo:", font=("Tahoma", 14, "bold")).grid(row=0, column=0, sticky="w", pady=10)
         combo_tipo = ttk.Combobox(frame_campos, width=40, state="readonly")
         combo_tipo['values'] = [tipo.value for tipo in TipoInforme]
         combo_tipo.set(informe.tipo.value)
         combo_tipo.grid(row=0, column=1, sticky="w", pady=10)
         
         # Estado del informe
-        tk.Label(frame_campos, text="Estado:", font=("Arial", 10, "bold")).grid(row=1, column=0, sticky="w", pady=10)
+        tk.Label(frame_campos, text="Estado:", font=("Tahoma", 14, "bold")).grid(row=1, column=0, sticky="w", pady=10)
         combo_estado = ttk.Combobox(frame_campos, width=25, state="readonly")
         combo_estado['values'] = [estado.value for estado in EstadoInforme]
         combo_estado.set(informe.estado.value)
         combo_estado.grid(row=1, column=1, sticky="w", pady=10)
         
         # Precio
-        tk.Label(frame_campos, text="Precio:", font=("Arial", 10, "bold")).grid(row=2, column=0, sticky="w", pady=10)
-        entry_precio = tk.Entry(frame_campos, width=15, font=("Arial", 10))
+        tk.Label(frame_campos, text="Precio:", font=("Tahoma", 14, "bold")).grid(row=2, column=0, sticky="w", pady=10)
+        entry_precio = tk.Entry(frame_campos, width=15, font=("Tahoma", 14))
         entry_precio.insert(0, str(int(informe.precio)))
         entry_precio.grid(row=2, column=1, sticky="w", pady=10)
         
         # Monto pagado
-        tk.Label(frame_campos, text="Monto pagado:", font=("Arial", 10, "bold")).grid(row=3, column=0, sticky="w", pady=10)
-        entry_pagado = tk.Entry(frame_campos, width=15, font=("Arial", 10))
+        tk.Label(frame_campos, text="Monto pagado:", font=("Tahoma", 14, "bold")).grid(row=3, column=0, sticky="w", pady=10)
+        entry_pagado = tk.Entry(frame_campos, width=15, font=("Tahoma", 14))
         entry_pagado.insert(0, str(int(informe.monto_pagado)))
         entry_pagado.grid(row=3, column=1, sticky="w", pady=10)
         
         # Estado de pago
-        tk.Label(frame_campos, text="Estado de pago:", font=("Arial", 10, "bold")).grid(row=4, column=0, sticky="w", pady=10)
+        tk.Label(frame_campos, text="Estado de pago:", font=("Tahoma", 14, "bold")).grid(row=4, column=0, sticky="w", pady=10)
         combo_estado_pago = ttk.Combobox(frame_campos, width=25, state="readonly")
         combo_estado_pago['values'] = [estado.value for estado in EstadoPagoInforme]
         combo_estado_pago.set(informe.estado_pago.value)
         combo_estado_pago.grid(row=4, column=1, sticky="w", pady=10)
         
         # Notas
-        tk.Label(frame_campos, text="Notas:", font=("Arial", 10, "bold")).grid(row=5, column=0, sticky="nw", pady=10)
-        text_notas = tk.Text(frame_campos, width=40, height=4, font=("Arial", 10))
+        tk.Label(frame_campos, text="Notas:", font=("Tahoma", 14, "bold")).grid(row=5, column=0, sticky="nw", pady=10)
+        text_notas = tk.Text(frame_campos, width=40, height=4, font=("Tahoma", 14))
         text_notas.insert("1.0", informe.notas if informe.notas else "")
         text_notas.grid(row=5, column=1, sticky="w", pady=10)
         
@@ -2220,7 +2220,7 @@ class AplicacionClinica:
             command=guardar_cambios,
             bg="#27ae60",
             fg="white",
-            font=("Arial", 10, "bold"),
+            font=("Tahoma", 14, "bold"),
             padx=20,
             pady=5
         ).pack(side=tk.LEFT, padx=5)
@@ -2231,7 +2231,7 @@ class AplicacionClinica:
             command=dialogo.destroy,
             bg="#95a5a6",
             fg="white",
-            font=("Arial", 10, "bold"),
+            font=("Tahoma", 14, "bold"),
             padx=20,
             pady=5
         ).pack(side=tk.LEFT, padx=5)
@@ -2255,7 +2255,7 @@ class AplicacionClinica:
         tk.Label(
             dialogo,
             text=f"Nuevo informe para {self.paciente_actual.nombre}",
-            font=("Arial", 14, "bold")
+            font=("Tahoma", 16, "bold")
         ).pack(pady=20)
         
         # Frame para campos
@@ -2263,41 +2263,41 @@ class AplicacionClinica:
         frame_campos.pack(padx=30, pady=10, fill=tk.BOTH, expand=True)
         
         # Tipo de informe
-        tk.Label(frame_campos, text="Tipo:", font=("Arial", 10, "bold")).grid(row=0, column=0, sticky="w", pady=10)
+        tk.Label(frame_campos, text="Tipo:", font=("Tahoma", 14, "bold")).grid(row=0, column=0, sticky="w", pady=10)
         combo_tipo = ttk.Combobox(frame_campos, width=40, state="readonly")
         combo_tipo['values'] = [tipo.value for tipo in TipoInforme]
         combo_tipo.current(0)
         combo_tipo.grid(row=0, column=1, sticky="w", pady=10)
         
         # Estado del informe
-        tk.Label(frame_campos, text="Estado:", font=("Arial", 10, "bold")).grid(row=1, column=0, sticky="w", pady=10)
+        tk.Label(frame_campos, text="Estado:", font=("Tahoma", 14, "bold")).grid(row=1, column=0, sticky="w", pady=10)
         combo_estado = ttk.Combobox(frame_campos, width=25, state="readonly")
         combo_estado['values'] = [estado.value for estado in EstadoInforme]
         combo_estado.current(0)
         combo_estado.grid(row=1, column=1, sticky="w", pady=10)
         
         # Estado del pago del informe
-        tk.Label(frame_campos, text="Estado del pago:", font=("Arial", 10, "bold")).grid(row=2, column=0, sticky="w", pady=10)
+        tk.Label(frame_campos, text="Estado del pago:", font=("Tahoma", 14, "bold")).grid(row=2, column=0, sticky="w", pady=10)
         combo_estado_pago = ttk.Combobox(frame_campos, width=25, state="readonly")
         combo_estado_pago['values'] = [estado.value for estado in EstadoPagoInforme]
         combo_estado_pago.current(0)
         combo_estado_pago.grid(row=2, column=1, sticky="w", pady=10)
         
         # Precio
-        tk.Label(frame_campos, text="Precio:", font=("Arial", 10, "bold")).grid(row=3, column=0, sticky="w", pady=10)
-        entry_precio = tk.Entry(frame_campos, width=15, font=("Arial", 10))
+        tk.Label(frame_campos, text="Precio:", font=("Tahoma", 14, "bold")).grid(row=3, column=0, sticky="w", pady=10)
+        entry_precio = tk.Entry(frame_campos, width=15, font=("Tahoma", 14))
         entry_precio.insert(0, "0")
         entry_precio.grid(row=3, column=1, sticky="w", pady=10)
         
         # Monto pagado
-        tk.Label(frame_campos, text="Monto pagado:", font=("Arial", 10, "bold")).grid(row=4, column=0, sticky="w", pady=10)
-        entry_pagado = tk.Entry(frame_campos, width=15, font=("Arial", 10))
+        tk.Label(frame_campos, text="Monto pagado:", font=("Tahoma", 14, "bold")).grid(row=4, column=0, sticky="w", pady=10)
+        entry_pagado = tk.Entry(frame_campos, width=15, font=("Tahoma", 14))
         entry_pagado.insert(0, "0")
         entry_pagado.grid(row=4, column=1, sticky="w", pady=10)
         
         # Notas
-        tk.Label(frame_campos, text="Notas:", font=("Arial", 10, "bold")).grid(row=5, column=0, sticky="nw", pady=10)
-        text_notas = tk.Text(frame_campos, width=40, height=4, font=("Arial", 10))
+        tk.Label(frame_campos, text="Notas:", font=("Tahoma", 14, "bold")).grid(row=5, column=0, sticky="nw", pady=10)
+        text_notas = tk.Text(frame_campos, width=40, height=4, font=("Tahoma", 14))
         text_notas.grid(row=5, column=1, sticky="w", pady=10)
         
         # Botones
@@ -2365,7 +2365,7 @@ class AplicacionClinica:
             command=guardar_informe,
             bg="#27ae60",
             fg="white",
-            font=("Arial", 10, "bold"),
+            font=("Tahoma", 14, "bold"),
             padx=20,
             pady=5
         ).pack(side=tk.LEFT, padx=5)
@@ -2376,7 +2376,7 @@ class AplicacionClinica:
             command=dialogo.destroy,
             bg="#95a5a6",
             fg="white",
-            font=("Arial", 10, "bold"),
+            font=("Tahoma", 14, "bold"),
             padx=20,
             pady=5
         ).pack(side=tk.LEFT, padx=5)
@@ -2398,7 +2398,7 @@ class AplicacionClinica:
         tk.Label(
             self.tab_resumen,
             text="Resumen Financiero",
-            font=("Arial", 18, "bold"),
+            font=("Tahoma", 18, "bold"),
             bg="white"
         ).pack(pady=20)
         
@@ -2413,14 +2413,14 @@ class AplicacionClinica:
         tk.Label(
             frame_resumen,
             text="Deuda Total",
-            font=("Arial", 14, "bold"),
+            font=("Tahoma", 16, "bold"),
             bg="white"
         ).pack(pady=(20, 0))
         
         tk.Label(
             frame_resumen,
             text=deuda_texto,
-            font=("Arial", 32, "bold"),
+            font=("Tahoma", 32, "bold"),
             bg="white",
             fg=deuda_color
         ).pack(pady=(0, 20))
@@ -2444,14 +2444,14 @@ class AplicacionClinica:
             tk.Label(
                 frame_resumen,
                 text=label,
-                font=("Arial", 11, "bold"),
+                font=("Tahoma", 15, "bold"),
                 bg="white"
             ).pack(pady=(10, 0), anchor="w")
             
             tk.Label(
                 frame_resumen,
                 text=str(valor),
-                font=("Arial", 11),
+                font=("Tahoma", 15),
                 bg="white",
                 fg="#7f8c8d"
             ).pack(anchor="w", padx=(20, 0))
@@ -2475,7 +2475,7 @@ class AplicacionClinica:
         tk.Label(
             dialogo,
             text=f"Nuevo pago para {self.paciente_actual.nombre}",
-            font=("Arial", 14, "bold")
+            font=("Tahoma", 16, "bold")
         ).pack(pady=20)
         
         # Frame para campos
@@ -2483,39 +2483,39 @@ class AplicacionClinica:
         frame_campos.pack(padx=30, pady=10, fill=tk.BOTH, expand=True)
         
         # Fecha
-        tk.Label(frame_campos, text="Fecha:", font=("Arial", 10, "bold")).grid(row=0, column=0, sticky="w", pady=10)
+        tk.Label(frame_campos, text="Fecha:", font=("Tahoma", 14, "bold")).grid(row=0, column=0, sticky="w", pady=10)
         frame_fecha = tk.Frame(frame_campos)
         frame_fecha.grid(row=0, column=1, sticky="w", pady=10)
         
-        entry_dia = tk.Entry(frame_fecha, width=5, font=("Arial", 10))
+        entry_dia = tk.Entry(frame_fecha, width=5, font=("Tahoma", 14))
         entry_dia.insert(0, datetime.now().strftime("%d"))
         entry_dia.pack(side=tk.LEFT)
         tk.Label(frame_fecha, text="/").pack(side=tk.LEFT)
         
-        entry_mes = tk.Entry(frame_fecha, width=5, font=("Arial", 10))
+        entry_mes = tk.Entry(frame_fecha, width=5, font=("Tahoma", 14))
         entry_mes.insert(0, datetime.now().strftime("%m"))
         entry_mes.pack(side=tk.LEFT)
         tk.Label(frame_fecha, text="/").pack(side=tk.LEFT)
         
-        entry_año = tk.Entry(frame_fecha, width=8, font=("Arial", 10))
+        entry_año = tk.Entry(frame_fecha, width=8, font=("Tahoma", 14))
         entry_año.insert(0, datetime.now().strftime("%Y"))
         entry_año.pack(side=tk.LEFT)
         
         # Monto
-        tk.Label(frame_campos, text="Monto:", font=("Arial", 10, "bold")).grid(row=1, column=0, sticky="w", pady=10)
-        entry_monto = tk.Entry(frame_campos, width=15, font=("Arial", 10))
+        tk.Label(frame_campos, text="Monto:", font=("Tahoma", 14, "bold")).grid(row=1, column=0, sticky="w", pady=10)
+        entry_monto = tk.Entry(frame_campos, width=15, font=("Tahoma", 14))
         entry_monto.grid(row=1, column=1, sticky="w", pady=10)
         
         # Concepto
-        tk.Label(frame_campos, text="Concepto:", font=("Arial", 10, "bold")).grid(row=2, column=0, sticky="w", pady=10)
+        tk.Label(frame_campos, text="Concepto:", font=("Tahoma", 14, "bold")).grid(row=2, column=0, sticky="w", pady=10)
         combo_concepto = ttk.Combobox(frame_campos, width=25, state="readonly")
         combo_concepto['values'] = [concepto.value for concepto in ConceptoPago]
         combo_concepto.current(0)
         combo_concepto.grid(row=2, column=1, sticky="w", pady=10)
         
         # Notas
-        tk.Label(frame_campos, text="Notas:", font=("Arial", 10, "bold")).grid(row=3, column=0, sticky="nw", pady=10)
-        text_notas = tk.Text(frame_campos, width=30, height=5, font=("Arial", 10))
+        tk.Label(frame_campos, text="Notas:", font=("Tahoma", 14, "bold")).grid(row=3, column=0, sticky="nw", pady=10)
+        text_notas = tk.Text(frame_campos, width=30, height=5, font=("Tahoma", 14))
         text_notas.grid(row=3, column=1, sticky="w", pady=10)
         
         # Botones
@@ -2612,7 +2612,7 @@ class AplicacionClinica:
             command=guardar_pago,
             bg="#27ae60",
             fg="white",
-            font=("Arial", 10, "bold"),
+            font=("Tahoma", 14, "bold"),
             padx=20,
             pady=5
         ).pack(side=tk.LEFT, padx=5)
@@ -2623,7 +2623,7 @@ class AplicacionClinica:
             command=dialogo.destroy,
             bg="#95a5a6",
             fg="white",
-            font=("Arial", 10, "bold"),
+            font=("Tahoma", 14, "bold"),
             padx=20,
             pady=5
         ).pack(side=tk.LEFT, padx=5)
@@ -2642,7 +2642,7 @@ class AplicacionClinica:
         tk.Label(
             ventana_exportar,
             text="Exportar Datos a CSV",
-            font=("Arial", 14, "bold"),
+            font=("Tahoma", 16, "bold"),
             fg="#2c3e50"
         ).pack(pady=15)
         
@@ -2653,7 +2653,7 @@ class AplicacionClinica:
         tk.Label(
             frame_opciones,
             text="Selecciona qué deseas exportar:",
-            font=("Arial", 11, "bold"),
+            font=("Tahoma", 15, "bold"),
             bg="#ecf0f1",
             fg="#2c3e50"
         ).pack(anchor="w", padx=15, pady=(10, 5))
@@ -2679,7 +2679,7 @@ class AplicacionClinica:
                 frame_opciones,
                 text=texto,
                 variable=var,
-                font=("Arial", 10),
+                font=("Tahoma", 14),
                 bg="#ecf0f1",
                 fg="#2c3e50",
                 activebackground="#ecf0f1"
@@ -2781,7 +2781,7 @@ class AplicacionClinica:
             command=exportar,
             bg="#27ae60",
             fg="white",
-            font=("Arial", 11, "bold"),
+            font=("Tahoma", 15, "bold"),
             padx=30,
             pady=8,
             relief=tk.FLAT,
@@ -2794,7 +2794,7 @@ class AplicacionClinica:
             command=ventana_exportar.destroy,
             bg="#95a5a6",
             fg="white",
-            font=("Arial", 11, "bold"),
+            font=("Tahoma", 15, "bold"),
             padx=30,
             pady=8,
             relief=tk.FLAT,
@@ -2808,7 +2808,7 @@ class AplicacionClinica:
         tk.Label(
             frame_info,
             text="ℹ️ Información",
-            font=("Arial", 10, "bold"),
+            font=("Tahoma", 14, "bold"),
             bg="#e8f8f5",
             fg="#27ae60"
         ).pack(anchor="w", padx=15, pady=(8, 0))
@@ -2822,7 +2822,7 @@ class AplicacionClinica:
         tk.Label(
             frame_info,
             text=info_text,
-            font=("Arial", 9),
+            font=("Tahoma", 13),
             bg="#e8f8f5",
             fg="#2c3e50",
             justify=tk.LEFT
@@ -2838,7 +2838,7 @@ class AplicacionClinica:
         tk.Label(
             ventana_backups,
             text="Gestión de Backups de la Base de Datos",
-            font=("Arial", 14, "bold"),
+            font=("Tahoma", 16, "bold"),
             fg="#2c3e50"
         ).pack(pady=15)
         
@@ -2861,7 +2861,7 @@ class AplicacionClinica:
             command=crear_backup_manual,
             bg="#27ae60",
             fg="white",
-            font=("Arial", 10, "bold"),
+            font=("Tahoma", 14, "bold"),
             padx=20,
             pady=8,
             relief=tk.FLAT,
@@ -2871,7 +2871,7 @@ class AplicacionClinica:
         tk.Label(
             frame_botones_top,
             text="Última acción: Ninguna",
-            font=("Arial", 9),
+            font=("Tahoma", 13),
             bg="#ecf0f1",
             fg="#7f8c8d"
         ).pack(side=tk.LEFT, padx=20)
@@ -2906,7 +2906,7 @@ class AplicacionClinica:
                 tk.Label(
                     frame_lista,
                     text="No hay backups disponibles",
-                    font=("Arial", 11),
+                    font=("Tahoma", 15),
                     bg="#f8f9fa",
                     fg="#95a5a6"
                 ).pack(pady=20)
@@ -2924,7 +2924,7 @@ class AplicacionClinica:
                 tk.Label(
                     frame_header,
                     text=f"#{i+1}: {backup['fecha']}",
-                    font=("Arial", 10, "bold"),
+                    font=("Tahoma", 14, "bold"),
                     bg="#ecf0f1",
                     fg="#2c3e50"
                 ).pack(side=tk.LEFT)
@@ -2932,7 +2932,7 @@ class AplicacionClinica:
                 tk.Label(
                     frame_header,
                     text=f"Tamaño: {backup['tamaño']}",
-                    font=("Arial", 9),
+                    font=("Tahoma", 13),
                     bg="#ecf0f1",
                     fg="#7f8c8d"
                 ).pack(side=tk.RIGHT)
@@ -2961,7 +2961,7 @@ class AplicacionClinica:
                     command=hacer_restaurar,
                     bg="#3498db",
                     fg="white",
-                    font=("Arial", 9, "bold"),
+                    font=("Tahoma", 13, "bold"),
                     padx=15,
                     pady=5,
                     relief=tk.FLAT,
@@ -2985,7 +2985,7 @@ class AplicacionClinica:
                     command=hacer_eliminar,
                     bg="#e74c3c",
                     fg="white",
-                    font=("Arial", 9, "bold"),
+                    font=("Tahoma", 13, "bold"),
                     padx=15,
                     pady=5,
                     relief=tk.FLAT,
