@@ -3,8 +3,8 @@ from tkinter import ttk, messagebox, simpledialog
 from datetime import datetime
 from typing import Optional
 
-import database as db
-from models import (
+import src.database as db
+from src.models import (
     Paciente, Sesion, Pago, Informe,
     TipoPaciente, TipoSesion, EstadoSesion, ConceptoPago,
     TipoInforme, EstadoInforme, EstadoPagoInforme
