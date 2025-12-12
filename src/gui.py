@@ -3,8 +3,8 @@ from tkinter import ttk, messagebox, simpledialog
 from datetime import datetime
 from typing import Optional
 
-import database as db
-from models import (
+import src.database as db
+from src.models import (
     Paciente, Sesion, Pago, Informe,
     TipoPaciente, TipoSesion, EstadoSesion, ConceptoPago,
     TipoInforme, EstadoInforme, EstadoPagoInforme
@@ -1605,8 +1605,8 @@ class AplicacionClinica:
         # Crear ventana de diálogo
         dialogo = tk.Toplevel(self.root)
         dialogo.title("Nueva Sesión")
-        dialogo.geometry("500x450")
-        dialogo.resizable(False, False)
+        dialogo.geometry("800x600")
+        dialogo.resizable(True, True)
         
         # Centrar ventana
         dialogo.transient(self.root)
@@ -2105,8 +2105,8 @@ class AplicacionClinica:
         # Crear ventana de diálogo
         dialogo = tk.Toplevel(self.root)
         dialogo.title("Editar Informe")
-        dialogo.geometry("550x500")
-        dialogo.resizable(False, False)
+        dialogo.geometry("800x600")
+        dialogo.resizable(True, True)
         
         # Centrar ventana
         dialogo.transient(self.root)
@@ -2244,8 +2244,8 @@ class AplicacionClinica:
         # Crear ventana de diálogo
         dialogo = tk.Toplevel(self.root)
         dialogo.title("Nuevo Informe")
-        dialogo.geometry("550x500")
-        dialogo.resizable(False, False)
+        dialogo.geometry("800x600")
+        dialogo.resizable(True, True)
         
         # Centrar ventana
         dialogo.transient(self.root)
@@ -2464,8 +2464,8 @@ class AplicacionClinica:
         # Crear ventana de diálogo
         dialogo = tk.Toplevel(self.root)
         dialogo.title("Nuevo Pago")
-        dialogo.geometry("500x450")
-        dialogo.resizable(False, False)
+        dialogo.geometry("800x600")
+        dialogo.resizable(True, True)
         
         # Centrar ventana
         dialogo.transient(self.root)
@@ -2636,7 +2636,7 @@ class AplicacionClinica:
         
         ventana_exportar = tk.Toplevel(self.root)
         ventana_exportar.title("Exportar Datos")
-        ventana_exportar.geometry("700x600")
+        ventana_exportar.geometry("800x600")
         
         # Título
         tk.Label(

@@ -3,9 +3,8 @@ from datetime import datetime
 from typing import List, Optional
 from pathlib import Path
 import shutil
-import os
 
-from models import (
+from src.models import (
     Paciente, Sesion, Pago, Informe,
     TipoPaciente, TipoSesion, EstadoSesion, ConceptoPago,
     TipoInforme, EstadoInforme, EstadoPagoInforme
@@ -230,7 +229,6 @@ def guardar_paciente(paciente: Paciente) -> int:
     conn.commit()
     conn.close()
     return paciente_id
-    return paciente_id
 
 
 def obtener_todos_pacientes() -> List[Paciente]:
@@ -323,8 +321,6 @@ def guardar_sesion(sesion: Sesion) -> int:
     conn.close()
     
     return sesion_id
-    return sesion_id
-
 
 def obtener_sesiones_paciente(paciente_id: int) -> List[Sesion]:
     """Obtiene todas las sesiones de un paciente"""
